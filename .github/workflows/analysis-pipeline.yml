@@ -1,0 +1,122 @@
+name: Six Sigma Analysis Pipeline
+
+on:
+  push:
+    paths:
+      - 'data/**'
+  workflow_dispatch:
+    inputs:
+      data_file:
+        description: 'Path to data file'
+        required: true
+        default: 'data/process_data.csv'
+      analysis_type:
+        description: 'Analysis type'
+        required: true
+        default: 'capability'
+        type: choice
+        options:
+          - capability
+          - regression
+          - control-chart
+          - descriptive
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install -r analysis_api/requirements.txt
+
+      - name: Start Analysis API
+        run: |
+          cd analysis_api
+          python main.py &
+          sleep 5  # Wait for server to start
+
+      - name: Run Analysis
+        run: |
+          # Capability Analysis Example
+          curl -X POST http://localhost:8000/analyze/capability \
+            -F "file=@${{ github.event.inputs.data_file || 'data/process_data.csv' }}" \
+            -F "column=Measurement" \
+            -F "usl=10.5" \
+            -F "lsl=9.5" \
+            -o results.json
+          
+          echo "Analysis Results:"
+          cat results.json | python -m json.tool
+
+      - name: Check Capability
+        run: |
+          # Extract Cpk and check threshold
+          CPK=$(cat results.json | python -c "import sys,json; print(json.load(sys.stdin)['results']['cpk'])")
+          echo "Cpk = $CPK"
+          
+          if (( $(echo "$CPK < 1.33" | bc -l) )); then
+            echo "⚠️ WARNING: Process not capable (Cpk < 1.33)"
+            exit 1
+          else
+            echo "✅ Process is capable (Cpk >= 1.33)"
+          fi
+
+      - name: Upload Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-results
+          path: results.json
+
+      - name: Post to Compliance Dashboard
+        if: success()
+        run: |
+          # Example: Post results to a compliance API
+          # curl -X POST https://compliance-dashboard.example.com/api/results \
+          #   -H "Authorization: Bearer ${{ secrets.DASHBOARD_TOKEN }}" \
+          #   -d @results.json
+          echo "Results would be posted to compliance dashboard"
+
+  generate-report:
+    runs-on: ubuntu-latest
+    needs: analyze
+    
+    steps:
+      - name: Download Results
+        uses: actions/download-artifact@v4
+        with:
+          name: analysis-results
+
+      - name: Generate Markdown Report
+        run: |
+          cat > report.md << 'EOF'
+          # Six Sigma Analysis Report
+          
+          **Date:** $(date)
+          **Triggered by:** ${{ github.actor }}
+          
+          ## Results Summary
+          
+          ```json
+          $(cat results.json | python -m json.tool)
+          ```
+          
+          ## Recommendations
+          
+          - If Cpk < 1.33: Investigate process centering or variation
+          - If Cpk >= 1.33: Process is capable, continue monitoring
+          EOF
+
+      - name: Upload Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: analysis-report
+          path: report.md

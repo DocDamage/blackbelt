@@ -1,0 +1,382 @@
+.home-page {
+    animation: fadeIn 0.5s ease;
+}
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: var(--space-16) var(--space-8);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(212, 165, 116, 0.05));
+    border-radius: var(--radius-2xl);
+    margin-bottom: var(--space-12);
+    position: relative;
+    overflow: hidden;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background:
+        radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 70% 70%, rgba(212, 165, 116, 0.1) 0%, transparent 50%);
+    animation: rotate 30s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes rotate {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.hero-content {
+    position: relative;
+    z-index: 1;
+}
+
+.hero-badge {
+    display: inline-block;
+    padding: var(--space-2) var(--space-4);
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-full);
+    font-size: var(--text-sm);
+    color: var(--color-gold);
+    margin-bottom: var(--space-6);
+}
+
+.hero-title {
+    font-size: var(--text-5xl);
+    font-weight: 800;
+    margin-bottom: var(--space-4);
+    background: linear-gradient(135deg, var(--text-primary), var(--color-gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-subtitle {
+    font-size: var(--text-xl);
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto var(--space-8);
+}
+
+.hero-actions {
+    display: flex;
+    gap: var(--space-4);
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Belt Cards Grid */
+.belt-cards-section {
+    margin-bottom: var(--space-12);
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--space-6);
+}
+
+.section-title {
+    font-size: var(--text-2xl);
+    font-weight: 700;
+}
+
+.belt-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: var(--space-6);
+}
+
+.belt-card {
+    background: var(--surface-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    transition: all var(--transition-normal);
+    cursor: pointer;
+    text-decoration: none;
+    display: block;
+}
+
+.belt-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+}
+
+.belt-card.white:hover {
+    border-color: var(--color-gray-400);
+}
+
+.belt-card.yellow:hover {
+    border-color: var(--color-yellow-belt);
+}
+
+.belt-card.green:hover {
+    border-color: var(--color-green-belt);
+}
+
+.belt-card.black:hover {
+    border-color: var(--color-gray-500);
+}
+
+.belt-card.master:hover {
+    border-color: var(--color-primary-500);
+}
+
+.belt-card-header {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.belt-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-lg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-2xl);
+}
+
+.belt-icon.white {
+    background: var(--color-white-belt);
+    border: 2px solid var(--color-gray-300);
+}
+
+.belt-icon.yellow {
+    background: var(--color-yellow-belt);
+}
+
+.belt-icon.green {
+    background: var(--color-green-belt);
+}
+
+.belt-icon.black {
+    background: var(--color-black-belt);
+}
+
+.belt-icon.master {
+    background: linear-gradient(135deg, var(--color-black-belt), var(--color-primary-600));
+}
+
+.belt-card-title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-1);
+}
+
+.belt-card-hours {
+    font-size: var(--text-sm);
+    color: var(--text-muted);
+}
+
+.belt-card-description {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-4);
+    line-height: 1.6;
+}
+
+.belt-card-stats {
+    display: flex;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+}
+
+.belt-stat {
+    flex: 1;
+    text-align: center;
+    padding: var(--space-2);
+    background: var(--glass-bg);
+    border-radius: var(--radius-md);
+}
+
+.belt-stat-value {
+    font-size: var(--text-lg);
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.belt-stat-label {
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+.belt-card-progress {
+    margin-top: var(--space-4);
+}
+
+.belt-progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: var(--space-2);
+    font-size: var(--text-sm);
+}
+
+.belt-progress-label span:first-child {
+    color: var(--text-secondary);
+}
+
+.belt-progress-label span:last-child {
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+/* Features Section */
+.features-section {
+    margin-bottom: var(--space-12);
+}
+
+.features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: var(--space-6);
+}
+
+.feature-card {
+    background: var(--surface-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-6);
+    text-align: center;
+    transition: all var(--transition-normal);
+}
+
+.feature-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary-500);
+}
+
+.feature-icon {
+    width: 64px;
+    height: 64px;
+    margin: 0 auto var(--space-4);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0.1));
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-3xl);
+}
+
+.feature-title {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.feature-description {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+/* Industry Focus Section */
+.industry-section {
+    margin-bottom: var(--space-12);
+}
+
+.industry-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: var(--space-6);
+}
+
+.industry-card {
+    background: var(--surface-card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--radius-xl);
+    padding: var(--space-8);
+    display: flex;
+    gap: var(--space-6);
+    align-items: flex-start;
+    text-decoration: none;
+    transition: all var(--transition-normal);
+}
+
+.industry-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-gold);
+}
+
+.industry-icon {
+    width: 72px;
+    height: 72px;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, rgba(212, 165, 116, 0.2), rgba(212, 165, 116, 0.1));
+    border-radius: var(--radius-xl);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: var(--text-3xl);
+}
+
+.industry-content {
+    flex: 1;
+}
+
+.industry-title {
+    font-size: var(--text-xl);
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.industry-description {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin-bottom: var(--space-3);
+}
+
+.industry-topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+}
+
+.industry-topic {
+    padding: var(--space-1) var(--space-3);
+    background: var(--glass-bg);
+    border-radius: var(--radius-full);
+    font-size: var(--text-xs);
+    color: var(--text-muted);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero {
+        padding: var(--space-10) var(--space-4);
+    }
+
+    .hero-title {
+        font-size: var(--text-3xl);
+    }
+
+    .hero-subtitle {
+        font-size: var(--text-base);
+    }
+
+    .industry-card {
+        flex-direction: column;
+        text-align: center;
+    }
+}

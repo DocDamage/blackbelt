@@ -1,0 +1,12 @@
+{
+  "sources": {
+    "svhc_candidate_list": "https://echa.europa.eu/candidate-list-table",
+    "annex_xiv_authorisation": "https://echa.europa.eu/authorisation-list",
+    "annex_xvii_restrictions": "https://echa.europa.eu/substances-restricted-under-reach",
+    "cl_inventory_landing": "https://echa.europa.eu/regulations/clp/cl-inventory",
+    "information_on_chemicals": "https://echa.europa.eu/information-on-chemicals"
+  },
+  "http": {
+    "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+  }
+}
