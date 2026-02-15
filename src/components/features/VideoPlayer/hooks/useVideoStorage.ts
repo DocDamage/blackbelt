@@ -41,7 +41,7 @@ export function useVideoStorage(videoId: string, prefix?: string) {
                 });
             }
         } catch (error) {
-            // eslint-disable-next-line no-console
+             
             console.error('Failed to load video storage:', error);
         } finally {
             setIsLoaded(true);
@@ -55,7 +55,7 @@ export function useVideoStorage(videoId: string, prefix?: string) {
         try {
             localStorage.setItem(storageKey, JSON.stringify(data));
         } catch (error) {
-            // eslint-disable-next-line no-console
+             
             console.error('Failed to save video storage:', error);
         }
     }, [data, storageKey, isLoaded]);
@@ -138,7 +138,7 @@ export function useVideoStorage(videoId: string, prefix?: string) {
         try {
             localStorage.removeItem(storageKey);
         } catch (error) {
-            // eslint-disable-next-line no-console
+             
             console.error('Failed to clear video storage:', error);
         }
     }, [storageKey]);
