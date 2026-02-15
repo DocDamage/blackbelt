@@ -7,14 +7,19 @@ interface QuizEngineProps {
     quiz: Quiz;
     beltLevel: BeltLevel;
     isFinalExam?: boolean;
+    userName?: string; // Optional user name for certificates
     onComplete: (passed: boolean, score: number) => void;
     onClose: () => void;
 }
+
+// Default user name when not provided
+const DEFAULT_USER_NAME = 'Six Sigma Student';
 
 export function QuizEngine({
     quiz,
     beltLevel,
     isFinalExam = false,
+    userName = DEFAULT_USER_NAME,
     onComplete,
     onClose,
 }: QuizEngineProps) {
@@ -24,24 +29,7 @@ export function QuizEngine({
     const [quizCompleted, setQuizCompleted] = useState(false);
     const [timeRemaining, setTimeRemaining] = useState(quiz.timeLimit ? quiz.timeLimit * 60 : 0);
     const [startTime] = useState(Date.now());
-
-    // Timer
-    useEffect(() => {
-        if (!quiz.timeLimit || quizCompleted) return;
-
-        const timer = setInterval(() => {
-            setTimeRemaining(prev => {
-                if (prev <= 1) {
-                    clearInterval(timer);
-                    handleSubmitQuiz();
-                    return 0;
-                }
-                return prev - 1;
-            });
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, [quiz.timeLimit, quizCompleted]);
+    const [isTimerPaused, setIsTimerPaused] = useState(false);
 
     const currentQuestion = quiz.questions[currentQuestionIndex];
     const totalQuestions = quiz.questions.length;
@@ -71,6 +59,72 @@ export function QuizEngine({
         };
     }, [answers, quiz, totalQuestions]);
 
+    // Memoized submit handler for timer dependency - must be defined before useEffect that uses it
+    const handleSubmitQuiz = useCallback(async () => {
+        const results = calculateScore();
+        const timeSpent = Math.round((Date.now() - startTime) / 1000);
+
+        // Save quiz attempt
+        await saveQuizAttempt({
+            quizId: quiz.id,
+            answers,
+            score: results.earnedPoints,
+            totalPoints: results.totalPoints,
+            percentage: results.percentage,
+            passed: results.passed,
+            completedAt: new Date(),
+            timeSpent,
+        });
+
+        // If passed final exam, generate certificate
+        if (isFinalExam && results.passed) {
+            const certId = generateCertificateId();
+            await saveCertificate({
+                id: certId,
+                beltLevel,
+                userName, // Uses prop or DEFAULT_USER_NAME
+                issueDate: new Date(),
+                score: results.percentage,
+                verificationCode: certId,
+            });
+        }
+
+        setQuizCompleted(true);
+        onComplete(results.passed, results.percentage);
+    }, [calculateScore, startTime, quiz.id, answers, isFinalExam, beltLevel, onComplete]);
+
+    // Timer - with proper dependency on memoized handleSubmitQuiz
+    useEffect(() => {
+        if (!quiz.timeLimit || quizCompleted || isTimerPaused) return;
+
+        const timer = setInterval(() => {
+            setTimeRemaining(prev => {
+                if (prev <= 1) {
+                    clearInterval(timer);
+                    handleSubmitQuiz();
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        return () => clearInterval(timer);
+    }, [quiz.timeLimit, quizCompleted, isTimerPaused, handleSubmitQuiz]);
+
+    // Pause timer when tab loses focus (prevents cheating)
+    useEffect(() => {
+        const handleVisibilityChange = () => {
+            if (document.hidden) {
+                setIsTimerPaused(true);
+            } else {
+                setIsTimerPaused(false);
+            }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }, []);
+
     const handleSelectAnswer = (questionId: string, answerIndex: number) => {
         if (showExplanation) return;
         setAnswers(prev => ({ ...prev, [questionId]: answerIndex }));
@@ -94,39 +148,6 @@ export function QuizEngine({
         setShowExplanation(true);
     };
 
-    const handleSubmitQuiz = async () => {
-        const results = calculateScore();
-        const timeSpent = Math.round((Date.now() - startTime) / 1000);
-
-        // Save quiz attempt
-        await saveQuizAttempt({
-            quizId: quiz.id,
-            answers,
-            score: results.earnedPoints,
-            totalPoints: results.totalPoints,
-            percentage: results.percentage,
-            passed: results.passed,
-            completedAt: new Date(),
-            timeSpent,
-        });
-
-        // If passed final exam, generate certificate
-        if (isFinalExam && results.passed) {
-            const certId = generateCertificateId();
-            await saveCertificate({
-                id: certId,
-                beltLevel,
-                userName: 'Six Sigma Student', // Profile-based name not yet implemented
-                issueDate: new Date(),
-                score: results.percentage,
-                verificationCode: certId,
-            });
-        }
-
-        setQuizCompleted(true);
-        onComplete(results.passed, results.percentage);
-    };
-
     const formatTime = (seconds: number) => {
         const mins = Math.floor(seconds / 60);
         const secs = seconds % 60;
@@ -141,6 +162,27 @@ export function QuizEngine({
         if (percentRemaining <= 25) return 'warning';
         return '';
     };
+
+    // Guard: ensure currentQuestion exists (must be after all hooks)
+    if (!currentQuestion) {
+        return (
+            <div className="quiz-engine">
+                <header className="quiz-header">
+                    <div className="quiz-header-left">
+                        <button className="quiz-back-btn" onClick={onClose}>
+                            ← Back to Modules
+                        </button>
+                        <span className="quiz-title-header">{quiz.title}</span>
+                    </div>
+                </header>
+                <div className="quiz-container">
+                    <div className="question-card">
+                        <p>Loading question...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     // Results screen
     if (quizCompleted) {
@@ -235,7 +277,7 @@ export function QuizEngine({
                 </div>
                 {quiz.timeLimit && (
                     <div className={`quiz-timer ${getTimerClass()}`}>
-                        ⏱️ {formatTime(timeRemaining)}
+                        {isTimerPaused ? '⏸️ PAUSED' : `⏱️ ${formatTime(timeRemaining)}`}
                     </div>
                 )}
             </header>

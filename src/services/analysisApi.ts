@@ -3,7 +3,8 @@
  * Connects frontend to Python analysis backend
  */
 
-const API_BASE_URL = 'http://localhost:8001';
+// Use environment variable for API URL, fallback to localhost for development
+const API_BASE_URL = import.meta.env['VITE_API_URL'] || 'http://localhost:8001';
 
 export interface DescriptiveResult {
     column: string;
@@ -89,9 +90,29 @@ class AnalysisApiClient {
     }
 
     /**
-     * Check if API is available
+     * Check if API is available and healthy
      */
-    async healthCheck(): Promise<boolean> {
+    async healthCheck(): Promise<{ healthy: boolean; version?: string; storageCount?: number }> {
+        try {
+            const response = await fetch(`${this.baseUrl}/health`);
+            if (response.ok) {
+                const data = await response.json();
+                return {
+                    healthy: data.status === 'healthy',
+                    version: data.version,
+                    storageCount: data.storage_count
+                };
+            }
+            return { healthy: false };
+        } catch {
+            return { healthy: false };
+        }
+    }
+
+    /**
+     * Simple ping check if API is reachable
+     */
+    async isReachable(): Promise<boolean> {
         try {
             const response = await fetch(this.baseUrl);
             return response.ok;

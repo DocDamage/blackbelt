@@ -1,0 +1,814 @@
+/**
+ * VideoPlayer Styles
+ * 
+ * Comprehensive styling for the VideoPlayer component.
+ */
+
+/* ========================================
+   CSS Variables
+   ======================================== */
+.video-player-container {
+    --vp-primary-color: #3b82f6;
+    --vp-bg-color: #000;
+    --vp-controls-bg: rgba(0, 0, 0, 0.8);
+    --vp-text-color: #fff;
+    --vp-text-secondary: rgba(255, 255, 255, 0.8);
+    --vp-border-radius: 8px;
+    --vp-spacing-xs: 4px;
+    --vp-spacing-sm: 8px;
+    --vp-spacing-md: 16px;
+    --vp-spacing-lg: 24px;
+    --vp-control-size: 40px;
+    --vp-transition-fast: 150ms ease;
+    --vp-transition-medium: 250ms ease;
+    
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    font-family: system-ui, -apple-system, sans-serif;
+    color: var(--vp-text-color);
+}
+
+.video-player-container:focus {
+    outline: 2px solid var(--vp-primary-color);
+    outline-offset: 2px;
+}
+
+.video-player-container.fullscreen {
+    max-width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ========================================
+   Layout
+   ======================================== */
+.video-title {
+    margin: 0 0 var(--vp-spacing-md);
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.video-player-layout {
+    display: grid;
+    grid-template-columns: 1fr 300px;
+    gap: var(--vp-spacing-md);
+    background: var(--vp-bg-color);
+    border-radius: var(--vp-border-radius);
+    overflow: hidden;
+}
+
+@media (max-width: 900px) {
+    .video-player-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .video-side-panels {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: var(--vp-spacing-md);
+    }
+}
+
+.video-main-area {
+    display: flex;
+    flex-direction: column;
+}
+
+.video-element-container {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #000;
+}
+
+.video-player-container.fullscreen .video-element-container {
+    flex: 1;
+    aspect-ratio: auto;
+}
+
+.video-side-panels {
+    padding: var(--vp-spacing-md);
+    background: #1a1a1a;
+    overflow-y: auto;
+    max-height: 600px;
+}
+
+/* ========================================
+   Video Element
+   ======================================== */
+.video-element-container video,
+.video-element-container iframe {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+/* ========================================
+   Loading Spinner
+   ======================================== */
+.loading-spinner-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 10;
+}
+
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    color: var(--vp-text-color);
+}
+
+.loading-message {
+    margin-top: var(--vp-spacing-md);
+    font-size: 0.875rem;
+    color: var(--vp-text-secondary);
+}
+
+/* ========================================
+   Error Message
+   ======================================== */
+.error-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 20;
+}
+
+.error-content {
+    text-align: center;
+    padding: var(--vp-spacing-lg);
+    max-width: 400px;
+}
+
+.error-icon {
+    width: 48px;
+    height: 48px;
+    color: #ef4444;
+    margin-bottom: var(--vp-spacing-md);
+}
+
+.error-title {
+    margin: 0 0 var(--vp-spacing-sm);
+    font-size: 1.25rem;
+}
+
+.error-message {
+    margin: 0 0 var(--vp-spacing-md);
+    color: var(--vp-text-secondary);
+}
+
+.error-retry-btn {
+    padding: var(--vp-spacing-sm) var(--vp-spacing-md);
+    background: var(--vp-primary-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background var(--vp-transition-fast);
+}
+
+.error-retry-btn:hover {
+    background: #2563eb;
+}
+
+/* ========================================
+   Play Overlay
+   ======================================== */
+.play-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.4);
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--vp-transition-medium);
+    z-index: 5;
+}
+
+.video-element-container:hover .play-overlay,
+.play-overlay:focus {
+    opacity: 1;
+}
+
+.play-overlay svg {
+    width: 80px;
+    height: 80px;
+    color: white;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+    transition: transform var(--vp-transition-fast);
+}
+
+.play-overlay:hover svg {
+    transform: scale(1.1);
+}
+
+/* ========================================
+   Controls
+   ======================================== */
+.video-controls {
+    background: var(--vp-controls-bg);
+    padding: var(--vp-spacing-sm) var(--vp-spacing-md);
+    display: flex;
+    flex-direction: column;
+    gap: var(--vp-spacing-sm);
+}
+
+.controls-progress {
+    width: 100%;
+}
+
+.controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--vp-spacing-md);
+}
+
+.controls-left,
+.controls-center,
+.controls-right {
+    display: flex;
+    align-items: center;
+    gap: var(--vp-spacing-sm);
+}
+
+.controls-center {
+    flex: 1;
+    justify-content: center;
+}
+
+/* ========================================
+   Control Buttons
+   ======================================== */
+.video-control-btn {
+    width: var(--vp-control-size);
+    height: var(--vp-control-size);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--vp-text-color);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background var(--vp-transition-fast);
+}
+
+.video-control-btn:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.video-control-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.video-control-btn svg {
+    width: 24px;
+    height: 24px;
+}
+
+/* Play/Pause buttons */
+.play-btn svg,
+.pause-btn svg {
+    width: 28px;
+    height: 28px;
+}
+
+/* Skip buttons */
+.skip-btn {
+    position: relative;
+}
+
+.skip-label {
+    position: absolute;
+    bottom: 4px;
+    font-size: 8px;
+    font-weight: bold;
+}
+
+/* Volume control */
+.volume-control {
+    display: flex;
+    align-items: center;
+    gap: var(--vp-spacing-xs);
+}
+
+.volume-slider {
+    width: 80px;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+}
+
+.volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+/* Playback rate */
+.playback-rate-select {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    padding: var(--vp-spacing-xs) var(--vp-spacing-sm);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+}
+
+.playback-rate-select:focus {
+    outline: 2px solid var(--vp-primary-color);
+}
+
+/* Time display */
+.time-display {
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--vp-text-secondary);
+}
+
+.time-display .current-time {
+    color: var(--vp-text-color);
+}
+
+/* ========================================
+   Seek Bar
+   ======================================== */
+.seek-bar-container {
+    position: relative;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.seek-bar-container:focus {
+    outline: none;
+}
+
+.seek-bar-container:focus-visible {
+    outline: 2px solid var(--vp-primary-color);
+    outline-offset: 2px;
+}
+
+.seek-bar-track {
+    position: absolute;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+}
+
+.seek-bar-progress {
+    position: absolute;
+    height: 4px;
+    background: var(--vp-primary-color);
+    border-radius: 2px;
+    transition: width var(--vp-transition-fast);
+}
+
+.seek-bar-handle {
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-radius: 50%;
+    transform: translate(-50%, 0);
+    opacity: 0;
+    transition: opacity var(--vp-transition-fast), transform var(--vp-transition-fast);
+}
+
+.seek-bar-container:hover .seek-bar-handle,
+.seek-bar-container:focus .seek-bar-handle {
+    opacity: 1;
+}
+
+/* Chapter markers */
+.chapter-marker {
+    position: absolute;
+    width: 4px;
+    height: 12px;
+    background: white;
+    border-radius: 2px;
+    transform: translateX(-50%);
+    opacity: 0.7;
+    cursor: pointer;
+    transition: opacity var(--vp-transition-fast), height var(--vp-transition-fast);
+}
+
+.chapter-marker:hover {
+    opacity: 1;
+    height: 16px;
+}
+
+/* Time preview */
+.time-preview {
+    position: absolute;
+    bottom: 24px;
+    transform: translateX(-50%);
+    padding: var(--vp-spacing-xs) var(--vp-spacing-sm);
+    background: rgba(0, 0, 0, 0.9);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+/* ========================================
+   Chapters Panel
+   ======================================== */
+.video-chapters-panel {
+    margin-bottom: var(--vp-spacing-lg);
+}
+
+.chapters-title,
+.bookmarks-title,
+.notes-title {
+    margin: 0 0 var(--vp-spacing-md);
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--vp-text-color);
+}
+
+.chapters-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.chapter-item {
+    margin-bottom: var(--vp-spacing-xs);
+}
+
+.chapter-item.active .chapter-button {
+    background: var(--vp-primary-color);
+}
+
+.chapter-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: var(--vp-spacing-sm);
+    padding: var(--vp-spacing-sm);
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    border-radius: 4px;
+    color: var(--vp-text-color);
+    cursor: pointer;
+    text-align: left;
+    transition: background var(--vp-transition-fast);
+}
+
+.chapter-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.chapter-time {
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--vp-text-secondary);
+    min-width: 40px;
+}
+
+.chapter-item.active .chapter-time {
+    color: white;
+}
+
+.chapter-title {
+    flex: 1;
+    font-size: 0.875rem;
+}
+
+.chapter-description {
+    margin: var(--vp-spacing-xs) 0 0;
+    padding-left: calc(40px + var(--vp-spacing-sm));
+    font-size: 0.75rem;
+    color: var(--vp-text-secondary);
+}
+
+/* ========================================
+   Bookmarks Panel
+   ======================================== */
+.video-bookmarks-panel {
+    margin-bottom: var(--vp-spacing-lg);
+}
+
+.bookmarks-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.bookmark-item {
+    margin-bottom: var(--vp-spacing-xs);
+}
+
+.bookmark-display {
+    display: flex;
+    align-items: center;
+    gap: var(--vp-spacing-sm);
+    padding: var(--vp-spacing-sm);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.bookmark-time-btn {
+    padding: var(--vp-spacing-xs) var(--vp-spacing-sm);
+    background: var(--vp-primary-color);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: background var(--vp-transition-fast);
+}
+
+.bookmark-time-btn:hover {
+    background: #2563eb;
+}
+
+.bookmark-label {
+    flex: 1;
+    font-size: 0.875rem;
+    color: var(--vp-text-color);
+}
+
+.bookmark-actions {
+    display: flex;
+    gap: var(--vp-spacing-xs);
+}
+
+.bookmark-action-btn {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--vp-text-secondary);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color var(--vp-transition-fast);
+}
+
+.bookmark-action-btn:hover {
+    color: var(--vp-text-color);
+}
+
+/* Bookmark edit */
+.bookmark-edit {
+    display: flex;
+    gap: var(--vp-spacing-xs);
+}
+
+.bookmark-edit input {
+    flex: 1;
+    padding: var(--vp-spacing-sm);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: white;
+    font-size: 0.875rem;
+}
+
+.bookmark-edit input:focus {
+    outline: 2px solid var(--vp-primary-color);
+    border-color: transparent;
+}
+
+/* ========================================
+   Notes Panel
+   ======================================== */
+.video-notes-panel {
+    margin-bottom: var(--vp-spacing-lg);
+}
+
+.notes-input-area {
+    margin-bottom: var(--vp-spacing-md);
+}
+
+.notes-input-area textarea {
+    width: 100%;
+    padding: var(--vp-spacing-sm);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: white;
+    font-size: 0.875rem;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.notes-input-area textarea:focus {
+    outline: 2px solid var(--vp-primary-color);
+    border-color: transparent;
+}
+
+.add-note-btn {
+    margin-top: var(--vp-spacing-sm);
+    padding: var(--vp-spacing-sm) var(--vp-spacing-md);
+    background: var(--vp-primary-color);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background var(--vp-transition-fast);
+}
+
+.add-note-btn:hover:not(:disabled) {
+    background: #2563eb;
+}
+
+.add-note-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.notes-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.note-item {
+    margin-bottom: var(--vp-spacing-sm);
+    padding: var(--vp-spacing-sm);
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
+}
+
+.note-display {
+    display: flex;
+    flex-direction: column;
+    gap: var(--vp-spacing-xs);
+}
+
+.note-timestamp {
+    align-self: flex-start;
+    padding: var(--vp-spacing-xs) var(--vp-spacing-sm);
+    background: var(--vp-primary-color);
+    border: none;
+    border-radius: 4px;
+    color: white;
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+    transition: background var(--vp-transition-fast);
+}
+
+.note-timestamp:hover {
+    background: #2563eb;
+}
+
+.note-content {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--vp-text-color);
+}
+
+.note-actions {
+    display: flex;
+    gap: var(--vp-spacing-xs);
+    justify-content: flex-end;
+}
+
+.note-action-btn {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--vp-text-secondary);
+    cursor: pointer;
+    border-radius: 4px;
+    transition: color var(--vp-transition-fast);
+}
+
+.note-action-btn:hover {
+    color: var(--vp-text-color);
+}
+
+/* Note edit */
+.note-edit textarea {
+    width: 100%;
+    padding: var(--vp-spacing-sm);
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    color: white;
+    font-size: 0.875rem;
+    resize: vertical;
+    min-height: 60px;
+}
+
+.note-edit textarea:focus {
+    outline: 2px solid var(--vp-primary-color);
+    border-color: transparent;
+}
+
+.note-edit-actions {
+    display: flex;
+    gap: var(--vp-spacing-sm);
+    margin-top: var(--vp-spacing-sm);
+}
+
+.note-edit-actions button {
+    padding: var(--vp-spacing-xs) var(--vp-spacing-md);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: background var(--vp-transition-fast);
+}
+
+.note-edit-actions button:first-child {
+    background: var(--vp-primary-color);
+    color: white;
+}
+
+.note-edit-actions button:first-child:hover {
+    background: #2563eb;
+}
+
+.note-edit-actions button:last-child {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--vp-text-color);
+}
+
+.note-edit-actions button:last-child:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* ========================================
+   Utility Classes
+   ======================================== */
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Focus visible for accessibility */
+.video-control-btn:focus-visible,
+.seek-bar-container:focus-visible,
+.chapter-button:focus-visible,
+.bookmark-time-btn:focus-visible,
+.note-timestamp:focus-visible {
+    outline: 2px solid var(--vp-primary-color);
+    outline-offset: 2px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .video-player-container *,
+    .video-player-container *::before,
+    .video-player-container *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}

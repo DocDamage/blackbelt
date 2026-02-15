@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 import { BeltLevel } from '../../types';
+import { ProgressDashboard } from '../../components/features/ProgressDashboard';
+import { StudyStreak } from '../../components/features/Gamification';
 import './Home.css';
 
 interface BeltCardData {
@@ -76,6 +78,12 @@ interface HomeProps {
 export function Home({ beltProgress }: HomeProps) {
     return (
         <div className="home-page">
+            {/* Progress Dashboard with Study Streak */}
+            <div className="dashboard-row">
+                <ProgressDashboard />
+                <StudyStreak />
+            </div>
+
             {/* Hero Section */}
             <section className="hero">
                 <div className="hero-content">

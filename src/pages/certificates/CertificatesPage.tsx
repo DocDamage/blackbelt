@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getAllCertificates, clearAllData } from '../../utils/db';
 import { Certificate, BeltLevel } from '../../types';
+import { CertificateSharing } from '../../components/features/CertificateSharing';
 import './CertificatesPage.css';
+
+const ITEMS_PER_PAGE = 6;
 
 export function CertificatesPage() {
     const [certificates, setCertificates] = useState<Certificate[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -40,6 +44,26 @@ export function CertificatesPage() {
         }
     };
 
+    // Pagination logic
+    const totalPages = Math.ceil(certificates.length / ITEMS_PER_PAGE);
+    const paginatedCertificates = useMemo(() => {
+        const start = (currentPage - 1) * ITEMS_PER_PAGE;
+        return certificates.slice(start, start + ITEMS_PER_PAGE);
+    }, [certificates, currentPage]);
+
+    const handlePageChange = (page: number) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
+    // Reset to page 1 if certificates change
+    useEffect(() => {
+        if (currentPage > totalPages && totalPages > 0) {
+            setCurrentPage(1);
+        }
+    }, [certificates.length, totalPages, currentPage]);
+
     if (loading) {
         return <div className="page-container">Loading certificates...</div>;
     }
@@ -49,24 +73,75 @@ export function CertificatesPage() {
             <h1>🏆 My Certificates</h1>
 
             {certificates.length > 0 ? (
-                <div className="certificates-grid">
-                    {certificates.map(cert => (
-                        <div key={cert.id} className="certificate-card" style={{ borderTop: `4px solid ${getBeltColor(cert.beltLevel)}` }}>
-                            <div className="cert-header">
-                                <h3>{cert.beltLevel.toUpperCase()} BELT</h3>
-                                <span className="cert-date">{new Date(cert.issueDate).toLocaleDateString()}</span>
+                <>
+                    <div className="certificates-grid">
+                        {paginatedCertificates.map(cert => (
+                            <div key={cert.id} className="certificate-card" style={{ borderTop: `4px solid ${getBeltColor(cert.beltLevel)}` }}>
+                                <div className="cert-header">
+                                    <h3>{cert.beltLevel.toUpperCase()} BELT</h3>
+                                    <span className="cert-date">{new Date(cert.issueDate).toLocaleDateString()}</span>
+                                </div>
+                                <div className="cert-body">
+                                    <p><strong>Certified:</strong> {cert.userName}</p>
+                                    <p><strong>Score:</strong> {cert.score}%</p>
+                                    <p className="cert-id">ID: {cert.id}</p>
+                                </div>
+                                <div className="cert-actions">
+                                    <button className="download-btn" onClick={() => handleView(cert)}>
+                                        👁️ View / Print
+                                    </button>
+                                    <CertificateSharing
+                                        beltLevel={cert.beltLevel}
+                                        userName={cert.userName}
+                                        completionDate={cert.issueDate.toISOString()}
+                                        certificateId={cert.id}
+                                    />
+                                </div>
                             </div>
-                            <div className="cert-body">
-                                <p><strong>Certified:</strong> {cert.userName}</p>
-                                <p><strong>Score:</strong> {cert.score}%</p>
-                                <p className="cert-id">ID: {cert.id}</p>
+                        ))}
+                    </div>
+
+                    {totalPages > 1 && (
+                        <nav className="pagination" role="navigation" aria-label="Certificate pagination">
+                            <div className="pagination-info">
+                                Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1}-{Math.min(currentPage * ITEMS_PER_PAGE, certificates.length)} of {certificates.length}
                             </div>
-                            <button className="download-btn" onClick={() => handleView(cert)}>
-                                👁️ View / Print
-                            </button>
-                        </div>
-                    ))}
-                </div>
+                            <ul className="pagination-list">
+                                <li>
+                                    <button
+                                        className="pagination-btn"
+                                        onClick={() => handlePageChange(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                        aria-label="Previous page"
+                                    >
+                                        ← Prev
+                                    </button>
+                                </li>
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                                    <li key={page}>
+                                        <button
+                                            className={`pagination-btn ${page === currentPage ? 'active' : ''}`}
+                                            onClick={() => handlePageChange(page)}
+                                            aria-current={page === currentPage ? 'page' : undefined}
+                                        >
+                                            {page}
+                                        </button>
+                                    </li>
+                                ))}
+                                <li>
+                                    <button
+                                        className="pagination-btn"
+                                        onClick={() => handlePageChange(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                        aria-label="Next page"
+                                    >
+                                        Next →
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    )}
+                </>
             ) : (
                 <div className="no-certs">
                     <p className="text-muted">You haven't earned any certificates yet.</p>

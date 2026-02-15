@@ -21,6 +21,11 @@
         "noUnusedParameters": true,
         "noFallthroughCasesInSwitch": true,
         "noUncheckedSideEffectImports": true,
+        "forceConsistentCasingInFileNames": true,
+        "noImplicitReturns": true,
+        "noUncheckedIndexedAccess": true,
+        "allowUnreachableCode": false,
+        "allowUnusedLabels": false,
         "baseUrl": ".",
         "paths": {
             "@/*": [

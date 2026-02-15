@@ -1,0 +1,82 @@
+{
+    "common": {
+        "loading": "Loading...",
+        "error": "An error occurred",
+        "retry": "Try Again",
+        "reload": "Reload Page",
+        "submit": "Submit",
+        "cancel": "Cancel",
+        "save": "Save",
+        "close": "Close",
+        "search": "Search",
+        "noResults": "No results found",
+        "pageOf": "{{current}} of {{total}}",
+        "itemsCount": "{{start}}–{{end}} of {{total}} items"
+    },
+    "nav": {
+        "home": "Home",
+        "dashboard": "Dashboard",
+        "certificates": "Certificates",
+        "profile": "Profile",
+        "settings": "Settings",
+        "logout": "Logout"
+    },
+    "belts": {
+        "white": "White Belt",
+        "yellow": "Yellow Belt",
+        "green": "Green Belt",
+        "black": "Black Belt",
+        "master": "Master Black Belt"
+    },
+    "quiz": {
+        "start": "Start Quiz",
+        "submit": "Submit Quiz",
+        "next": "Next Question",
+        "previous": "Previous Question",
+        "questionOf": "Question {{current}} of {{total}}",
+        "timeRemaining": "Time Remaining: {{time}}",
+        "passed": "Congratulations! You passed!",
+        "failed": "Unfortunately, you did not pass.",
+        "score": "Your score: {{score}}%",
+        "passingScore": "Passing score: {{score}}%",
+        "tryAgain": "Try Again",
+        "reviewAnswers": "Review Answers",
+        "paused": "PAUSED"
+    },
+    "certificate": {
+        "title": "Certificate of Completion",
+        "issuedTo": "This certifies that",
+        "completedBelt": "has successfully completed the {{belt}} Training",
+        "date": "Date: {{date}}",
+        "verify": "Verify Certificate",
+        "verificationId": "Verification ID: {{id}}"
+    },
+    "chatbot": {
+        "title": "Six Sigma Assistant",
+        "online": "Online",
+        "placeholder": "Ask a question...",
+        "send": "Send",
+        "typing": "Assistant is typing...",
+        "welcome": "Hello! I'm your Six Sigma assistant. How can I help you today?",
+        "quickQuestions": {
+            "sampleSize": "Calculate sample size",
+            "cpk": "Calculate Cpk",
+            "controlChart": "Control chart limits",
+            "dpmo": "DPMO to Sigma"
+        }
+    },
+    "profile": {
+        "title": "Profile Settings",
+        "name": "Display Name",
+        "email": "Email",
+        "currentBelt": "Current Belt Level",
+        "progress": "Overall Progress",
+        "saveSuccess": "Profile saved successfully",
+        "saveError": "Failed to save profile"
+    },
+    "errorBoundary": {
+        "title": "Something went wrong",
+        "message": "We're sorry, but something unexpected happened.",
+        "details": "Error details"
+    }
+}

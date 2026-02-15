@@ -1,0 +1,193 @@
+.achievement-badges {
+    padding: 1.5rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.badges-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.badges-header h2 {
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.badges-progress {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--color-text-secondary);
+    font-size: 0.875rem;
+}
+
+.progress-bar {
+    width: 150px;
+    height: 8px;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-primary), var(--color-success));
+    border-radius: var(--radius-full);
+    transition: width 0.3s ease;
+}
+
+.category-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.category-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    color: var(--color-text-primary);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+}
+
+.category-btn:hover {
+    border-color: var(--color-primary);
+    background: var(--color-primary-light);
+}
+
+.category-btn.active {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+    color: white;
+}
+
+.cat-icon {
+    font-size: 1rem;
+}
+
+.badges-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.badge-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.badge-card.earned {
+    border-color: var(--color-success);
+    background: linear-gradient(135deg, var(--color-surface) 0%, var(--color-success-light) 100%);
+}
+
+.badge-card.locked {
+    opacity: 0.6;
+}
+
+.badge-card.locked:hover {
+    opacity: 0.8;
+}
+
+.badge-icon {
+    font-size: 2.5rem;
+    line-height: 1;
+}
+
+.badge-card.locked .badge-icon {
+    filter: grayscale(100%);
+}
+
+.badge-info {
+    flex: 1;
+}
+
+.badge-info h3 {
+    margin: 0 0 0.25rem;
+    font-size: 1rem;
+    color: var(--color-text-primary);
+}
+
+.badge-info p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+}
+
+.badge-progress {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.mini-progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--color-border);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.mini-progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width 0.3s ease;
+}
+
+.badge-progress span {
+    font-size: 0.625rem;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.earned-check {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 24px;
+    height: 24px;
+    background: var(--color-success);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .badges-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .badges-progress {
+        width: 100%;
+    }
+
+    .progress-bar {
+        flex: 1;
+    }
+}

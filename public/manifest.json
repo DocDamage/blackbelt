@@ -1,0 +1,23 @@
+{
+    "name": "Six Sigma Training Platform",
+    "short_name": "SixSigma",
+    "description": "Comprehensive Six Sigma training and certification platform",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0f0f1a",
+    "theme_color": "#d4af37",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        }
+    ],
+    "categories": [
+        "education",
+        "productivity"
+    ],
+    "lang": "en-US"
+}

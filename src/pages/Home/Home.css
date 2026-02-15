@@ -2,6 +2,20 @@
     animation: fadeIn 0.5s ease;
 }
 
+/* Dashboard Row - Progress + Study Streak */
+.dashboard-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+}
+
+@media (max-width: 900px) {
+    .dashboard-row {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Hero Section */
 .hero {
     text-align: center;

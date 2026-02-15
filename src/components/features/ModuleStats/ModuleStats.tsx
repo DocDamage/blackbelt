@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { getModuleProgress } from '../../../utils/db';
-import { UserProgress } from '../../../types';
 import './ModuleStats.css';
 
 interface ModuleStatsProps {

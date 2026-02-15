@@ -1,0 +1,166 @@
+.flashcard-deck {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+.deck-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.deck-header h3 {
+    font-size: var(--text-xl);
+    margin-bottom: var(--spacing-md);
+}
+
+.deck-header .progress-bar {
+    height: 8px;
+    background: var(--bg-secondary);
+    border-radius: var(--radius-full);
+    overflow: hidden;
+    margin-bottom: var(--spacing-sm);
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--color-primary);
+    transition: width var(--transition-normal);
+}
+
+.card-counter {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+}
+
+.flashcard {
+    perspective: 1000px;
+    cursor: pointer;
+    margin-bottom: var(--spacing-xl);
+}
+
+.card-inner {
+    position: relative;
+    min-height: 300px;
+    transition: transform 0.6s;
+    transform-style: preserve-3d;
+}
+
+.flashcard.flipped .card-inner {
+    transform: rotateY(180deg);
+}
+
+.card-front,
+.card-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: var(--spacing-xl);
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+}
+
+.card-back {
+    transform: rotateY(180deg);
+    background: var(--color-primary);
+    color: white;
+}
+
+.card-front p,
+.card-back p {
+    font-size: var(--text-lg);
+    text-align: center;
+    margin: var(--spacing-md) 0;
+}
+
+.card-category {
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 1px;
+}
+
+.flip-hint {
+    font-size: var(--text-xs);
+    color: var(--text-secondary);
+    margin-top: var(--spacing-lg);
+}
+
+.difficulty-badge {
+    font-size: var(--text-xs);
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-sm);
+}
+
+.rating-buttons {
+    text-align: center;
+}
+
+.rating-buttons p {
+    margin-bottom: var(--spacing-md);
+    color: var(--text-secondary);
+}
+
+.buttons {
+    display: flex;
+    gap: var(--spacing-sm);
+    justify-content: center;
+}
+
+.rate-btn {
+    padding: var(--spacing-sm) var(--spacing-lg);
+    border: none;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 500;
+    transition: transform var(--transition-fast);
+}
+
+.rate-btn:hover {
+    transform: scale(1.05);
+}
+
+.rate-btn.again {
+    background: #ef4444;
+    color: white;
+}
+
+.rate-btn.hard {
+    background: #f97316;
+    color: white;
+}
+
+.rate-btn.good {
+    background: #22c55e;
+    color: white;
+}
+
+.rate-btn.easy {
+    background: #3b82f6;
+    color: white;
+}
+
+.session-stats {
+    display: flex;
+    justify-content: center;
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-lg);
+}
+
+.session-stats .stat {
+    font-weight: 600;
+}
+
+.stat.correct {
+    color: var(--color-success);
+}
+
+.stat.incorrect {
+    color: var(--color-error);
+}
