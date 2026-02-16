@@ -12,9 +12,14 @@
     "test": "vitest",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:debug": "playwright test --debug",
+    "test:all": "npm run test:run && npm run test:e2e",
     "check:budgets": "node scripts/check-performance-budgets.cjs",
     "analyze": "npm run build && npm run check:budgets",
-    "prepare": "husky"
+    "prepare": "husky",
+    "postinstall": "playwright install chromium"
   },
   "dependencies": {
     "@sentry/react": "^10.38.0",
@@ -34,6 +39,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
+    "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/jest-axe": "^3.5.9",
