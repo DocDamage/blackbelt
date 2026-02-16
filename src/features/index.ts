@@ -24,3 +24,10 @@ export { ProjectPortfolio } from './project-portfolio/ProjectPortfolio';
 export * from './project-portfolio/projectPortfolio.db';
 
 export { SmartScheduler } from './smart-scheduler/SmartScheduler';
+
+// Phase 3: AI Features
+export { AILearningPath } from './ai-learning-path/AILearningPath';
+export * from './ai-learning-path/aiLearningPath.db';
+
+export { AIMentor } from './ai-mentor/AIMentor';
+export * from './ai-mentor/aiMentor.db';
