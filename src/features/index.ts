@@ -31,3 +31,13 @@ export * from './ai-learning-path/aiLearningPath.db';
 
 export { AIMentor } from './ai-mentor/AIMentor';
 export * from './ai-mentor/aiMentor.db';
+
+// Phase 4: Collaboration
+export { StudyGroups } from './study-groups/StudyGroups';
+export * from './study-groups/studyGroups.db';
+
+export { Mentorship } from './mentorship/Mentorship';
+export * from './mentorship/mentorship.db';
+
+export { OfflinePWA } from './offline-pwa/OfflinePWA';
+export * from './offline-pwa/offlineManager';
