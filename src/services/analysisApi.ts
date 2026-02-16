@@ -3,6 +3,8 @@
  * Connects frontend to Python analysis backend
  */
 
+import { getCorrelationHeaders } from '../utils/logger';
+
 // Use environment variable for API URL, fallback to localhost for development
 const API_BASE_URL = import.meta.env['VITE_API_URL'] || 'http://localhost:8001';
 
@@ -94,7 +96,9 @@ class AnalysisApiClient {
      */
     async healthCheck(): Promise<{ healthy: boolean; version?: string; storageCount?: number }> {
         try {
-            const response = await fetch(`${this.baseUrl}/health`);
+            const response = await fetch(`${this.baseUrl}/health`, {
+                headers: getCorrelationHeaders()
+            });
             if (response.ok) {
                 const data = await response.json();
                 return {
@@ -114,7 +118,9 @@ class AnalysisApiClient {
      */
     async isReachable(): Promise<boolean> {
         try {
-            const response = await fetch(this.baseUrl);
+            const response = await fetch(this.baseUrl, {
+                headers: getCorrelationHeaders()
+            });
             return response.ok;
         } catch {
             return false;
@@ -137,6 +143,7 @@ class AnalysisApiClient {
 
         const response = await fetch(`${this.baseUrl}/upload`, {
             method: 'POST',
+            headers: getCorrelationHeaders(),
             body: formData
         });
 
@@ -159,6 +166,7 @@ class AnalysisApiClient {
 
         const response = await fetch(`${this.baseUrl}/analyze/descriptive`, {
             method: 'POST',
+            headers: getCorrelationHeaders(),
             body: formData
         });
 
@@ -184,6 +192,7 @@ class AnalysisApiClient {
 
         const response = await fetch(`${this.baseUrl}/analyze/capability`, {
             method: 'POST',
+            headers: getCorrelationHeaders(),
             body: formData
         });
 
@@ -206,6 +215,7 @@ class AnalysisApiClient {
 
         const res = await fetch(`${this.baseUrl}/analyze/regression`, {
             method: 'POST',
+            headers: getCorrelationHeaders(),
             body: formData
         });
 
@@ -243,6 +253,7 @@ class AnalysisApiClient {
 
         const response = await fetch(`${this.baseUrl}/analyze/ttest`, {
             method: 'POST',
+            headers: getCorrelationHeaders(),
             body: formData
         });
 
@@ -271,6 +282,7 @@ class AnalysisApiClient {
 
         const response = await fetch(`${this.baseUrl}/analyze/control-chart`, {
             method: 'POST',
+            headers: getCorrelationHeaders(),
             body: formData
         });
 
@@ -286,7 +298,9 @@ class AnalysisApiClient {
      * Export results as JSON
      */
     async exportJson(analysisId: string): Promise<Record<string, unknown>> {
-        const response = await fetch(`${this.baseUrl}/export/json/${analysisId}`);
+        const response = await fetch(`${this.baseUrl}/export/json/${analysisId}`, {
+            headers: getCorrelationHeaders()
+        });
 
         if (!response.ok) {
             throw new Error('Export failed');
@@ -309,7 +323,9 @@ class AnalysisApiClient {
         count: number;
         analyses: { analysis_id: string; type: string; timestamp: string }[];
     }> {
-        const response = await fetch(`${this.baseUrl}/results`);
+        const response = await fetch(`${this.baseUrl}/results`, {
+            headers: getCorrelationHeaders()
+        });
         return response.json();
     }
 }

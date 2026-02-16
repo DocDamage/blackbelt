@@ -4,7 +4,6 @@ FastAPI backend for automated statistical analysis
 """
 
 import os
-import logging
 from datetime import datetime
 from io import BytesIO
 from typing import Any, Dict, List, Optional
@@ -37,12 +36,15 @@ from auth import (
 )
 from auth_storage import get_user_by_email, create_user, create_api_key, list_api_keys_for_user
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-)
-logger = logging.getLogger(__name__)
+# Import logging and middleware
+from logging_config import configure_logging, get_logger
+from middleware import setup_middleware
+
+# Configure structured logging
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
+JSON_LOGS = os.getenv("JSON_LOGS", "false").lower() == "true"
+configure_logging(log_level=LOG_LEVEL, json_format=JSON_LOGS)
+logger = get_logger(__name__, service="six_sigma_api")
 
 # Rate limiter setup
 limiter = Limiter(key_func=get_remote_address)
@@ -108,6 +110,9 @@ app.add_middleware(
     allow_methods=["GET", "POST"],
     allow_headers=["*"],
 )
+
+# Setup security headers, correlation ID, and logging middleware
+setup_middleware(app, logger=logger)
 
 # File upload configuration
 MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "10"))
