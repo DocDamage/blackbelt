@@ -7,11 +7,12 @@ This guide provides essential information for AI agents working on the Six Sigma
 | Item | Value |
 |------|-------|
 | **Test Framework** | Vitest 4.x |
-| **Test Count** | 820 tests across 42 files |
+| **Test Count** | 1073 tests across 55 files |
 | **Test Command** | `npm test` |
 | **Lint Command** | `npm run lint` |
 | **Build Command** | `npm run build` |
-| **Node Version** | 18.x+ |
+| **Node Version** | 20.x+ |
+| **Features** | 15 new features in `src/features/` |
 
 ## Testing Guidelines
 
@@ -97,6 +98,7 @@ src/
 │   ├── greenBelt/
 │   ├── blackBelt/
 │   └── masterBlackBelt/
+├── features/            # New feature modules (see below)
 ├── hooks/               # Custom React hooks
 ├── pages/               # Page components
 ├── services/            # API clients (analysisApi, echaApi, etc.)
@@ -214,6 +216,42 @@ class ApiClient {
 
 export const apiClient = new ApiClient(import.meta.env.VITE_API_URL);
 ```
+
+## Feature Inventory (Phases 1-4 Complete)
+
+### Phase 1: Learning Enhancement
+| Feature | Location | Description |
+|---------|----------|-------------|
+| **Spaced Repetition** | `src/features/spaced-repetition/` | SM-2 algorithm for optimal retention |
+| **Community Notes** | `src/features/community-notes/` | Peer-generated study annotations |
+| **Skills Gap Analysis** | `src/features/skills-gap/` | Personalized knowledge assessment |
+
+### Phase 2: Assessment & Planning
+| Feature | Location | Description |
+|---------|----------|-------------|
+| **Mock Certification Exams** | `src/features/mock-exams/` | ASQ CSSBB format with 50+ questions |
+| **Project Portfolio** | `src/features/project-portfolio/` | DMAIC project tracking & showcase |
+| **Smart Study Scheduler** | `src/features/smart-scheduler/` | 11 topics, 60-min session optimizer |
+
+### Phase 3: AI-Powered Learning
+| Feature | Location | Description |
+|---------|----------|-------------|
+| **AI Learning Path** | `src/features/ai-learning-path/` | Adaptive recommendations engine |
+| **AI Mentor** | `src/features/ai-mentor/` | Chat-based guidance with knowledge base |
+
+### Phase 4: Collaboration & Offline
+| Feature | Location | Description |
+|---------|----------|-------------|
+| **Study Groups** | `src/features/study-groups/` | Collaborative learning platform |
+| **Mentorship Matching** | `src/features/mentorship/` | Smart algorithm with 4 mock mentors |
+| **Offline PWA** | `src/features/offline-pwa/` | Download manager & offline sync |
+
+### Feature Technical Standards
+- **State Management**: React Context + hooks
+- **Persistence**: IndexedDB via `src/utils/db.ts`
+- **Styling**: CSS Modules (per-feature `.module.css`)
+- **Testing**: Vitest with React Testing Library
+- **Exports**: Centralized via `src/features/index.ts`
 
 ## Troubleshooting
 
