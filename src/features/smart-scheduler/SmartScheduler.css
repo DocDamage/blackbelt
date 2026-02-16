@@ -1,0 +1,205 @@
+/**
+ * Smart Scheduler Styles
+ */
+
+.scheduler-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: var(--spacing-lg);
+}
+
+.scheduler-header {
+    text-align: center;
+    margin-bottom: var(--spacing-xl);
+}
+
+.scheduler-title {
+    font-size: var(--font-size-2xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: var(--spacing-sm);
+}
+
+.scheduler-subtitle {
+    font-size: var(--font-size-lg);
+    color: var(--text-secondary);
+}
+
+/* Setup Form */
+.scheduler-setup {
+    background: var(--surface-elevated);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+    margin-bottom: var(--spacing-xl);
+}
+
+.scheduler-form {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.scheduler-field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+}
+
+.scheduler-field label {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.scheduler-field input[type="range"] {
+    width: 100%;
+    height: 8px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--surface-default);
+    border-radius: var(--radius-full);
+    outline: none;
+}
+
+.scheduler-field input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    border-radius: var(--radius-full);
+    cursor: pointer;
+}
+
+.scheduler-field input[type="date"] {
+    padding: var(--spacing-md);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    background: var(--surface-default);
+    color: var(--text-primary);
+    font-size: var(--font-size-base);
+}
+
+.scheduler-field-value {
+    font-size: var(--font-size-xl);
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.scheduler-generate-btn {
+    padding: var(--spacing-lg);
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-lg);
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.scheduler-generate-btn:hover {
+    background: var(--primary-dark);
+}
+
+.scheduler-generate-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Summary */
+.scheduler-summary {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--spacing-md);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border-default);
+}
+
+.scheduler-stat {
+    text-align: center;
+}
+
+.scheduler-stat-value {
+    display: block;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.scheduler-stat-label {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+/* Calendar */
+.scheduler-calendar {
+    background: var(--surface-elevated);
+    border-radius: var(--radius-xl);
+    padding: var(--spacing-xl);
+}
+
+.scheduler-calendar h2 {
+    margin-bottom: var(--spacing-lg);
+    color: var(--text-primary);
+}
+
+.scheduler-sessions {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-md);
+}
+
+.scheduler-session {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-lg);
+    padding: var(--spacing-md);
+    background: var(--surface-default);
+    border-radius: var(--radius-md);
+    border-left: 4px solid var(--primary);
+}
+
+.scheduler-session-date {
+    min-width: 100px;
+}
+
+.scheduler-session-day {
+    display: block;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.scheduler-session-time {
+    font-size: var(--font-size-sm);
+    color: var(--text-secondary);
+}
+
+.scheduler-session-topic {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    color: var(--text-primary);
+}
+
+.scheduler-session-number {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    background: var(--primary);
+    color: white;
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .scheduler-summary {
+        grid-template-columns: 1fr;
+    }
+    
+    .scheduler-session {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
