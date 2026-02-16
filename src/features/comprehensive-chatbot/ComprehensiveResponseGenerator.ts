@@ -6,6 +6,7 @@
 
 import dmaicKnowledge from './ComprehensiveKnowledgeBase';
 import sixSigmaToolsKnowledge from './SixSigmaToolsKnowledge';
+import globalComplianceKnowledge, { ComplianceEntry } from './GlobalComplianceKnowledge';
 
 export interface ChatResponse {
   content: string;
@@ -26,7 +27,8 @@ const keywordTopics: Record<string, string[]> = {
   'statistics': ['statistics', 'mean', 'median', 'standard deviation', 'variance', 'normal distribution'],
   'capability': ['cpk', 'cp', 'process capability', 'sigma level', 'ppm', 'dpmo'],
   'certification': ['certification', 'belt', 'white belt', 'yellow belt', 'green belt', 'black belt', 'asq'],
-  'tools': ['5s', 'kaizen', 'poka yoke', 'kanban', 'vsm', 'pareto', 'histogram']
+  'tools': ['5s', 'kaizen', 'poka yoke', 'kanban', 'vsm', 'pareto', 'histogram'],
+  'compliance': ['reach', 'rohs', 'prop 65', 'tsca', 'weee', 'bpa', 'phthalates', 'heavy metals']
 };
 
 function findRelevantKnowledge(query: string): typeof allKnowledge {
@@ -59,6 +61,81 @@ function extractTopic(query: string): string {
   }
   
   return 'general';
+}
+
+// Find relevant compliance knowledge
+function findRelevantCompliance(query: string): ComplianceEntry[] {
+  const queryLower = query.toLowerCase();
+  
+  return globalComplianceKnowledge.filter(entry => {
+    const matchesKeyword = entry.keywords.some((kw: string) => queryLower.includes(kw));
+    const matchesRegulation = queryLower.includes(entry.regulation.toLowerCase());
+    const matchesJurisdiction = queryLower.includes(entry.jurisdiction.toLowerCase());
+    const matchesCategory = entry.applicableProducts.some(product => 
+      queryLower.includes(product.toLowerCase())
+    );
+    
+    return matchesKeyword || matchesRegulation || matchesJurisdiction || matchesCategory;
+  });
+}
+
+// Generate compliance help
+function generateComplianceHelp(query: string): string | null {
+  const queryLower = query.toLowerCase();
+  
+  // Check for compliance overview questions
+  if (queryLower.includes('reach') || queryLower.includes('eu chemicals')) {
+    const reachEntry = globalComplianceKnowledge.find(e => e.id === 'eu-reach-1');
+    if (reachEntry) return reachEntry.content;
+  }
+  
+  if (queryLower.includes('rohs') || (queryLower.includes('electronics') && queryLower.includes('eu'))) {
+    const rohsEntry = globalComplianceKnowledge.find(e => e.id === 'eu-rohs-1');
+    if (rohsEntry) return rohsEntry.content;
+  }
+  
+  if (queryLower.includes('prop 65') || queryLower.includes('california') || queryLower.includes('warning label')) {
+    const prop65Entry = globalComplianceKnowledge.find(e => e.id === 'us-prop65-1');
+    if (prop65Entry) return prop65Entry.content;
+  }
+  
+  if (queryLower.includes('tsca') || (queryLower.includes('us') && queryLower.includes('chemical'))) {
+    const tscaEntry = globalComplianceKnowledge.find(e => e.id === 'us-tsca-1');
+    if (tscaEntry) return tscaEntry.content;
+  }
+  
+  if (queryLower.includes('bpa') || queryLower.includes('bisphenol')) {
+    const bpaEntry = globalComplianceKnowledge.find(e => e.id === 'plastics-bpa-1');
+    if (bpaEntry) return bpaEntry.content;
+  }
+  
+  if (queryLower.includes('phthalate')) {
+    const phthalateEntry = globalComplianceKnowledge.find(e => e.id === 'plastics-phthalates-1');
+    if (phthalateEntry) return phthalateEntry.content;
+  }
+  
+  if (queryLower.includes('heavy metal') || queryLower.includes('lead') || queryLower.includes('cadmium')) {
+    const heavyMetalEntry = globalComplianceKnowledge.find(e => e.id === 'plastics-heavy-metals-1');
+    if (heavyMetalEntry) return heavyMetalEntry.content;
+  }
+  
+  if (queryLower.includes('china') && queryLower.includes('chemical')) {
+    const chinaEntry = globalComplianceKnowledge.find(e => e.id === 'cn-reach-1');
+    if (chinaEntry) return chinaEntry.content;
+  }
+  
+  if (queryLower.includes('korea') && queryLower.includes('chemical')) {
+    const koreaEntry = globalComplianceKnowledge.find(e => e.id === 'kr-reach-1');
+    if (koreaEntry) return koreaEntry.content;
+  }
+  
+  // If specific match not found, return general compliance search
+  const relevantCompliance = findRelevantCompliance(query);
+  if (relevantCompliance.length > 0 && relevantCompliance[0]) {
+    return relevantCompliance[0].content;
+  }
+  
+  return null;
 }
 
 // Statistical calculation helpers
@@ -327,6 +404,15 @@ export async function comprehensiveResponseGenerator(query: string): Promise<Cha
     };
   }
   
+  // Check for compliance questions
+  const complianceHelp = generateComplianceHelp(queryLower);
+  if (complianceHelp) {
+    return {
+      content: complianceHelp,
+      suggestions: ['REACH', 'RoHS', 'Prop 65', 'TSCA', 'Phthalates', 'BPA']
+    };
+  }
+  
   // Check for certification questions
   if (topic === 'certification' || queryLower.includes('belt') || queryLower.includes('certification')) {
     const certHelp = generateCertificationHelp(query);
@@ -352,16 +438,16 @@ export async function comprehensiveResponseGenerator(query: string): Promise<Cha
   // Default responses for common questions
   if (queryLower.includes('hello') || queryLower.includes('hi')) {
     return {
-      content: 'Hello! I\'m your Six Sigma Assistant. I can help you with:\n\n• **DMAIC methodology** - Define, Measure, Analyze, Improve, Control\n• **Statistical tools** - Control charts, capability analysis, hypothesis tests\n• **Certification guidance** - White, Yellow, Green, Black Belt\n• **Problem solving** - Root cause analysis, 5 Whys, Fishbone diagrams\n• **Process improvement** - Lean tools, waste reduction, flow optimization\n\nWhat would you like to learn about?',
-      suggestions: ['DMAIC Overview', 'Certification Paths', 'Statistical Tools']
+      content: 'Hello! I\'m your Six Sigma & Compliance Assistant. I can help you with:\n\n• **Six Sigma DMAIC** - Define, Measure, Analyze, Improve, Control\n• **Statistical tools** - Control charts, capability analysis, hypothesis tests\n• **Certification guidance** - White, Yellow, Green, Black Belt\n• **Global Compliance** - REACH, RoHS, Prop 65, TSCA, Phthalates, BPA\n• **Problem solving** - Root cause analysis, 5 Whys, Fishbone diagrams\n• **Process improvement** - Lean tools, waste reduction, flow optimization\n\nWhat would you like to learn about?',
+      suggestions: ['DMAIC Overview', 'REACH Compliance', 'Certification Paths', 'Prop 65', 'Statistical Tools']
     };
   }
   
   // General fallback
   return {
-    content: `I can help you with many Six Sigma topics! Here are some things you can ask:
+    content: `I can help you with Six Sigma and Global Compliance topics! Here are some things you can ask:
 
-**DMAIC Phases:**
+**Six Sigma DMAIC:**
 • "Explain the Define phase"
 • "What happens in Measure?"
 • "How do I analyze data?"
@@ -374,15 +460,21 @@ export async function comprehensiveResponseGenerator(query: string): Promise<Cha
 **Certification:**
 • "What are Green Belt requirements?"
 • "How do I prepare for ASQ exam?"
-• "White vs Yellow belt?"
+
+**Global Compliance:**
+• "What is REACH?"
+• "RoHS restricted substances"
+• "California Prop 65 requirements"
+• "BPA restrictions"
+• "Phthalate regulations"
+• "Heavy metals limits"
 
 **Problem Solving:**
 • "How do I do a 5 Whys?"
 • "What is a Fishbone diagram?"
-• "How do I create a control plan?"
 
-Try asking a specific question about any of these topics!`,
-    suggestions: ['DMAIC Overview', 'Calculate Cpk', 'Certification Requirements']
+Try asking a specific question!`,
+    suggestions: ['DMAIC Overview', 'REACH', 'Prop 65', 'Calculate Cpk', 'Certification Requirements']
   };
 }
 

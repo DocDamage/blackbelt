@@ -1497,7 +1497,7 @@ The codebase has made **significant progress** with 44 issues resolved and 15 ne
 - ✅ Offline PWA (download manager & sync)
 
 **Bonus Features:**
-- ✅ **Comprehensive Six Sigma Chatbot** - All-knowing assistant with extensive knowledge base covering DMAIC, statistics, certification, and all Six Sigma topics
+- ✅ **Comprehensive Six Sigma & Compliance Chatbot** - All-knowing assistant with extensive knowledge base covering Six Sigma, DMAIC, statistics, certification, PLUS global compliance (REACH, RoHS, Prop 65, TSCA, BPA, phthalates, heavy metals, food contact, 20+ regulations)
 
 **Technical Debt Status:**
 - **10 of 10** new technical debt items resolved
@@ -1600,32 +1600,49 @@ The VideoPlayer modular architecture now has comprehensive test coverage:
 
 ---
 
-### Feature: Comprehensive Six Sigma Chatbot
+### Feature: Comprehensive Six Sigma & Compliance Chatbot
 
 **Location:** `src/features/comprehensive-chatbot/`  
 **Status:** ✅ **IMPLEMENTED** (February 16, 2026)
 
 **Overview:**
-An all-knowing chatbot assistant that can answer any Six Sigma-related question. Features an extensive knowledge base covering all DMAIC phases, statistical tools, certification requirements, and process improvement techniques.
+An all-knowing chatbot assistant that can answer any Six Sigma AND global regulatory compliance question. Features an extensive knowledge base covering Six Sigma methodology, statistical tools, certification requirements, PLUS comprehensive global chemical regulations and product compliance.
 
 **Knowledge Base Coverage:**
 
 | Category | Topics |
 |----------|--------|
-| **DMAIC** | All 5 phases with detailed activities, deliverables, and key questions |
-| **Tools** | Process mapping, VSM, 5S, Poka-Yoke, Pareto, Histograms, Kanban, TPM |
+| **Six Sigma DMAIC** | All 5 phases with detailed activities, deliverables, and key questions |
+| **Six Sigma Tools** | Process mapping, VSM, 5S, Poka-Yoke, Pareto, Histograms, Kanban, TPM |
 | **Statistics** | Capability analysis (Cpk), control charts, sample size, hypothesis tests |
 | **Certification** | White, Yellow, Green, Black Belt requirements and study guidance |
 | **Problem Solving** | 5 Whys, Fishbone, Root cause analysis |
+| **EU REACH** | Registration, SVHC, Authorization, Annex XVII restrictions |
+| **EU RoHS** | Restricted substances, exemptions, compliance marking |
+| **California Prop 65** | Warning requirements, NSRL/MADL, enforcement |
+| **US TSCA** | New chemicals, existing chemicals, PFAS reporting |
+| **Global Chemicals** | China REACH, K-REACH, Japan CSCL, Australia AICIS |
+| **Plastics** | BPA restrictions, phthalates, heavy metals, food contact |
+| **Product Safety** | FDA food contact, WEEE, packaging regulations |
 
 **Key Features:**
 - **Natural Language Understanding:** Interprets user questions and matches to relevant knowledge
 - **Statistical Calculators:** On-demand Cpk calculations, sample size formulas, control chart selection
 - **Certification Guidance:** Detailed requirements for all belt levels (White through Master Black)
+- **Global Compliance Database:** REACH, RoHS, Prop 65, TSCA, and 15+ more regulations
+- **Plastics & Chemical Compliance:** BPA, phthalates, heavy metals, food contact materials
 - **Context-Aware Suggestions:** Related topics and follow-up questions
 - **Quick Questions:** Pre-defined common questions for instant access
 - **Responsive Design:** Works on desktop and mobile
 - **Accessibility:** ARIA labels, keyboard navigation, screen reader support
+
+**Example Queries:**
+- Six Sigma: "What is DMAIC?", "Calculate Cpk", "Green Belt requirements"
+- REACH: "What are SVHC substances?", "REACH registration requirements"
+- Prop 65: "Do I need Prop 65 warnings?", "NSRL vs MADL"
+- RoHS: "RoHS restricted substances", "Electronics compliance"
+- Plastics: "BPA restrictions", "Phthalate regulations", "Heavy metals limits"
+- Global: "China REACH vs EU REACH", "K-REACH requirements"
 
 **Files Created:**
 - `ComprehensiveChatbot.tsx` - Main component
@@ -1633,6 +1650,7 @@ An all-knowing chatbot assistant that can answer any Six Sigma-related question.
 - `ComprehensiveResponseGenerator.ts` - Response generation engine
 - `ComprehensiveKnowledgeBase.ts` - DMAIC knowledge (13 entries)
 - `SixSigmaToolsKnowledge.ts` - Tools knowledge (5+ entries)
+- `GlobalComplianceKnowledge.ts` - Global regulations (20+ entries covering EU, US, APAC, plastics)
 
 **Usage:**
 ```tsx

@@ -26,13 +26,13 @@ interface QuickQuestion {
 
 const QUICK_QUESTIONS: QuickQuestion[] = [
   { label: 'What is DMAIC?', query: 'Explain the DMAIC methodology and each phase' },
+  { label: 'REACH', query: 'Explain EU REACH regulation and requirements' },
   { label: 'Calculate Cpk', query: 'How do I calculate Cpk for my process?' },
+  { label: 'Prop 65', query: 'What are California Prop 65 requirements?' },
   { label: 'Control Charts', query: 'When should I use different types of control charts?' },
-  { label: 'Sample Size', query: 'How do I calculate the required sample size?' },
-  { label: '5 Whys', query: 'How do I perform a 5 Whys analysis?' },
-  { label: 'Gage R&R', query: 'How do I conduct a Gage R&R study?' },
-  { label: 'Hypothesis Test', query: 'Which hypothesis test should I use?' },
-  { label: 'Certification', query: 'What are the requirements for Six Sigma certification?' }
+  { label: 'RoHS', query: 'What are RoHS restricted substances?' },
+  { label: 'BPA', query: 'What are BPA restrictions globally?' },
+  { label: 'Phthalates', query: 'What are phthalate restrictions by region?' }
 ];
 
 export function ComprehensiveChatbot() {
@@ -41,9 +41,9 @@ export function ComprehensiveChatbot() {
     {
       id: 'welcome',
       role: 'assistant',
-      content: '**👋 Welcome to Your Six Sigma Assistant!**\n\nI can help you with:\n• **DMAIC methodology** and all phases\n• **Statistical tools** and calculations\n• **Six Sigma certification** requirements\n• **Process improvement** techniques\n• **Study guidance** for your belt level\n• **Formula help** and examples\n\nWhat would you like to learn about?',
+      content: '**👋 Welcome to Your Six Sigma & Compliance Assistant!**\n\nI can help you with:\n• **Six Sigma DMAIC** methodology and all phases\n• **Statistical tools** and calculations (Cpk, control charts, sample size)\n• **Six Sigma certification** requirements (White to Black Belt)\n• **Global Compliance** - REACH, RoHS, Prop 65, TSCA, BPA, Phthalates\n• **Plastics regulations** - Food contact, heavy metals, additives\n• **Process improvement** techniques and Lean tools\n• **Formula help** with examples\n\nWhat would you like to learn about?',
       timestamp: new Date(),
-      suggestions: ['What is DMAIC?', 'How to calculate Cpk?', 'Control chart selection']
+      suggestions: ['What is DMAIC?', 'REACH compliance', 'How to calculate Cpk?', 'Prop 65 requirements', 'Control chart selection']
     }
   ]);
   const [inputValue, setInputValue] = useState('');
