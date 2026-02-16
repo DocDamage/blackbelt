@@ -41,3 +41,6 @@ export * from './mentorship/mentorship.db';
 
 export { OfflinePWA } from './offline-pwa/OfflinePWA';
 export * from './offline-pwa/offlineManager';
+
+// Comprehensive Chatbot
+export { ComprehensiveChatbot } from './comprehensive-chatbot/ComprehensiveChatbot';
