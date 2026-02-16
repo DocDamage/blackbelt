@@ -7,6 +7,13 @@
 import dmaicKnowledge from './ComprehensiveKnowledgeBase';
 import sixSigmaToolsKnowledge from './SixSigmaToolsKnowledge';
 import globalComplianceKnowledge, { ComplianceEntry } from './GlobalComplianceKnowledge';
+import { parseCalculationRequest, calculateCpk, calculateSampleSizeMean, sigmaToDpmo } from './Calculators';
+import { searchIndustryPlaybooks } from './IndustryPlaybooks';
+import supplierComplianceKnowledge from './SupplierCompliance';
+import sdsAndLabelingKnowledge from './SDSAndLabeling';
+import auditChecklists from './AuditChecklists';
+import { searchCaseStudies } from './CaseStudies';
+import esgSustainabilityKnowledge from './ESGSustainability';
 
 export interface ChatResponse {
   content: string;
@@ -395,7 +402,47 @@ export async function comprehensiveResponseGenerator(query: string): Promise<Cha
   const queryLower = query.toLowerCase();
   const topic = extractTopic(query);
   
-  // Check for statistical calculations
+  // Check for interactive calculation requests
+  const calcRequest = parseCalculationRequest(queryLower);
+  if (calcRequest) {
+    let result: { result: string; interpretation: string } | null = null;
+    
+    switch (calcRequest.type) {
+      case 'cpk':
+        if (calcRequest.params.length === 4) {
+          const [mean, usl, lsl, stdDev] = calcRequest.params;
+          if (mean && usl && lsl && stdDev) {
+            result = calculateCpk(mean, usl, lsl, stdDev);
+          }
+        }
+        break;
+      case 'sampleSizeMean':
+        if (calcRequest.params.length === 3) {
+          const [confidence, margin, stdDev] = calcRequest.params;
+          if (confidence && margin && stdDev) {
+            result = calculateSampleSizeMean(confidence, margin, stdDev);
+          }
+        }
+        break;
+      case 'sigmaDpmo':
+        if (calcRequest.params.length === 1) {
+          const sigma = calcRequest.params[0];
+          if (sigma) {
+            result = sigmaToDpmo(sigma);
+          }
+        }
+        break;
+    }
+    
+    if (result) {
+      return {
+        content: result.result,
+        suggestions: ['Sample Size', 'Gage R&R', 'Sigma Converter']
+      };
+    }
+  }
+  
+  // Check for statistical calculations (formula explanations)
   const statHelp = generateStatisticalHelp(topic, queryLower);
   if (statHelp) {
     return {
@@ -420,6 +467,140 @@ export async function comprehensiveResponseGenerator(query: string): Promise<Cha
       content: certHelp,
       suggestions: ['Green Belt Requirements', 'Study Tips', 'ASQ Exam']
     };
+  }
+  
+  // Check for industry-specific questions
+  if (queryLower.includes('industry') || queryLower.includes('medical device') || 
+      queryLower.includes('automotive') || queryLower.includes('aerospace') ||
+      queryLower.includes('pharmaceutical') || queryLower.includes('food') ||
+      queryLower.includes('electronics') || queryLower.includes('iatf') ||
+      queryLower.includes('as9100') || queryLower.includes('iso 13485')) {
+    const industries = searchIndustryPlaybooks(query);
+    if (industries.length > 0 && industries[0]) {
+      const pb = industries[0];
+      return {
+        content: `**${pb.industry} Six Sigma Playbook**
+
+${pb.description}
+
+**Key Standards:**
+${pb.keyStandards.map(s => `• ${s}`).join('\n')}
+
+**Typical Projects:**
+${pb.typicalProjects.slice(0, 4).map(p => `• ${p}`).join('\n')}
+
+**Critical Metrics:**
+${pb.criticalMetrics.slice(0, 5).map(m => `• ${m}`).join('\n')}
+
+**Compliance Requirements:**
+${pb.complianceRequirements.slice(0, 4).map(r => `• ${r}`).join('\n')}
+
+**Tools and Methods:**
+${pb.toolsAndMethods.slice(0, 5).map(t => `• ${t}`).join('\n')}
+
+**Case Study Example:**
+${pb.caseStudies[0]}`,
+        suggestions: pb.keyStandards.slice(0, 3)
+      };
+    }
+  }
+  
+  // Check for supplier/compliance questions
+  if (queryLower.includes('supplier') || queryLower.includes('conflict mineral') || 
+      queryLower.includes('coc') || queryLower.includes('certificate of compliance') ||
+      queryLower.includes('smelter') || queryLower.includes('cmrt')) {
+    const relevantSupplier = supplierComplianceKnowledge.find(k => 
+      k.keywords.some((kw: string) => queryLower.includes(kw))
+    );
+    if (relevantSupplier) {
+      return {
+        content: relevantSupplier.content,
+        suggestions: ['Conflict Minerals', 'Supplier Audit', 'Certificate of Compliance']
+      };
+    }
+  }
+  
+  // Check for SDS/Labeling questions
+  if (queryLower.includes('sds') || queryLower.includes('safety data sheet') || 
+      queryLower.includes('msds') || queryLower.includes('ghs') || 
+      queryLower.includes('label') || queryLower.includes('pictogram') ||
+      queryLower.includes('hazard') || queryLower.includes('transport') ||
+      queryLower.includes('un number')) {
+    const relevantSDS = sdsAndLabelingKnowledge.find(k => 
+      k.keywords.some((kw: string) => queryLower.includes(kw))
+    );
+    if (relevantSDS) {
+      return {
+        content: relevantSDS.content,
+        suggestions: ['SDS Sections', 'GHS Labeling', 'Transport Classification']
+      };
+    }
+  }
+  
+  // Check for audit questions
+  if (queryLower.includes('audit') || queryLower.includes('inspection') || 
+      queryLower.includes('checklist') || queryLower.includes('iso 9001') ||
+      queryLower.includes('fda inspection') || queryLower.includes('483') ||
+      queryLower.includes('lpa') || queryLower.includes('layered process')) {
+    const relevantAudit = auditChecklists.find(k => 
+      k.keywords.some((kw: string) => queryLower.includes(kw))
+    );
+    if (relevantAudit) {
+      return {
+        content: relevantAudit.content,
+        suggestions: ['ISO 9001 Audit', 'FDA Inspection', 'Layered Process Audit']
+      };
+    }
+  }
+  
+  // Check for case studies
+  if (queryLower.includes('case study') || queryLower.includes('example') ||
+      queryLower.includes('success story') || queryLower.includes('project example')) {
+    const cases = searchCaseStudies(query);
+    if (cases.length > 0 && cases[0]) {
+      const cs = cases[0];
+      return {
+        content: `**Case Study: ${cs.title}**
+
+**Industry:** ${cs.industry}
+
+**Challenge:**
+${cs.challenge}
+
+**Approach:**
+${cs.approach}
+
+**Results:**
+${cs.results}
+
+**Tools Used:** ${cs.toolsUsed.join(', ')}
+
+**Timeline:** ${cs.timeline}
+
+**ROI:** ${cs.roi}
+
+**Lessons Learned:**
+${cs.lessonsLearned}`,
+        suggestions: ['DMAIC', cs.industry, 'Tools Used']
+      };
+    }
+  }
+  
+  // Check for ESG/Sustainability questions
+  if (queryLower.includes('esg') || queryLower.includes('sustainability') || 
+      queryLower.includes('carbon') || queryLower.includes('emission') || 
+      queryLower.includes('scope 1') || queryLower.includes('scope 2') ||
+      queryLower.includes('scope 3') || queryLower.includes('csrd') ||
+      queryLower.includes('circular economy') || queryLower.includes('ghg')) {
+    const relevantESG = esgSustainabilityKnowledge.find(k => 
+      k.keywords.some((kw: string) => queryLower.includes(kw))
+    );
+    if (relevantESG) {
+      return {
+        content: relevantESG.content,
+        suggestions: ['Carbon Footprint', 'CSRD', 'Circular Economy', 'ESG Frameworks']
+      };
+    }
   }
   
   // Find relevant knowledge
