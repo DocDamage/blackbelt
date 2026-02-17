@@ -2,6 +2,8 @@
  * Comprehensive Response Generator
  * 
  * Generates detailed responses to Six Sigma questions using the knowledge base.
+ * 
+ * Technical Debt Fix - Issue 60: Optimized knowledge base loading with keyword index
  */
 
 import dmaicKnowledge from './ComprehensiveKnowledgeBase';
@@ -14,6 +16,8 @@ import sdsAndLabelingKnowledge from './SDSAndLabeling';
 import auditChecklists from './AuditChecklists';
 import { searchCaseStudies } from './CaseStudies';
 import esgSustainabilityKnowledge from './ESGSustainability';
+import qualitySoftwareSystems from './QualitySoftwareSystems';
+import aiQualityKnowledge from './AIQualityKnowledge';
 
 export interface ChatResponse {
   content: string;
@@ -22,6 +26,41 @@ export interface ChatResponse {
 
 // Combine all knowledge bases
 const allKnowledge = [...dmaicKnowledge, ...sixSigmaToolsKnowledge];
+
+// Pre-built keyword index for fast lookups (Issue 60 fix)
+// This avoids scanning all entries on every query
+interface KeywordIndex {
+  [keyword: string]: number[]; // keyword -> array of knowledge base indices
+}
+
+// Build inverted keyword index for O(1) lookups
+const keywordIndex: KeywordIndex = {};
+
+function buildKeywordIndex(): void {
+  if (Object.keys(keywordIndex).length > 0) return; // Already built
+  
+  allKnowledge.forEach((entry, index) => {
+    entry.keywords.forEach(keyword => {
+      const normalizedKw = keyword.toLowerCase();
+      if (!keywordIndex[normalizedKw]) {
+        keywordIndex[normalizedKw] = [];
+      }
+      if (!keywordIndex[normalizedKw].includes(index)) {
+        keywordIndex[normalizedKw].push(index);
+      }
+    });
+  });
+}
+
+// Initialize index on first use
+let indexInitialized = false;
+
+function ensureIndexBuilt(): void {
+  if (!indexInitialized) {
+    buildKeywordIndex();
+    indexInitialized = true;
+  }
+}
 
 // Keywords mapping to topics
 const keywordTopics: Record<string, string[]> = {
@@ -38,24 +77,40 @@ const keywordTopics: Record<string, string[]> = {
   'compliance': ['reach', 'rohs', 'prop 65', 'tsca', 'weee', 'bpa', 'phthalates', 'heavy metals']
 };
 
+/**
+ * Find relevant knowledge using optimized keyword index (Issue 60 fix)
+ * O(k) lookup where k is number of query keywords instead of O(n*k)
+ */
 function findRelevantKnowledge(query: string): typeof allKnowledge {
-  const queryLower = query.toLowerCase();
-  const queryKeywords = queryLower.split(/\s+/);
+  ensureIndexBuilt();
   
-  return allKnowledge.filter(entry => {
-    // Check if any keyword matches
-    const matchesKeyword = entry.keywords.some((kw: string) => 
-      queryKeywords.some(qk => qk.includes(kw) || kw.includes(qk))
-    );
-    
-    // Check if topic is mentioned
-    const matchesTopic = queryLower.includes(entry.topic.toLowerCase());
-    
-    // Check if content would be relevant
-    const matchesContent = entry.keywords.some((kw: string) => queryLower.includes(kw));
-    
-    return matchesKeyword || matchesTopic || matchesContent;
+  const queryLower = query.toLowerCase();
+  const queryKeywords = queryLower.split(/\s+/).filter(k => k.length > 2); // Filter out short words
+  
+  // Use Set to avoid duplicates
+  const matchedIndices = new Set<number>();
+  
+  // Fast index lookup
+  queryKeywords.forEach(qk => {
+    // Check for exact keyword matches in index
+    Object.entries(keywordIndex).forEach(([kw, indices]) => {
+      if (qk.includes(kw) || kw.includes(qk)) {
+        indices.forEach(idx => matchedIndices.add(idx));
+      }
+    });
   });
+  
+  // Also check topics directly
+  allKnowledge.forEach((entry, index) => {
+    if (queryLower.includes(entry.topic.toLowerCase())) {
+      matchedIndices.add(index);
+    }
+  });
+  
+  // Convert indices back to entries
+  return Array.from(matchedIndices)
+    .map(idx => allKnowledge[idx])
+    .filter((entry): entry is typeof allKnowledge[0] => entry !== undefined);
 }
 
 function extractTopic(query: string): string {
@@ -76,11 +131,11 @@ function findRelevantCompliance(query: string): ComplianceEntry[] {
   
   return globalComplianceKnowledge.filter(entry => {
     const matchesKeyword = entry.keywords.some((kw: string) => queryLower.includes(kw));
-    const matchesRegulation = queryLower.includes(entry.regulation.toLowerCase());
-    const matchesJurisdiction = queryLower.includes(entry.jurisdiction.toLowerCase());
-    const matchesCategory = entry.applicableProducts.some(product => 
+    const matchesRegulation = queryLower.includes(entry.regulation?.toLowerCase() || '');
+    const matchesJurisdiction = queryLower.includes(entry.jurisdiction?.toLowerCase() || '');
+    const matchesCategory = entry.applicableProducts?.some(product => 
       queryLower.includes(product.toLowerCase())
-    );
+    ) || false;
     
     return matchesKeyword || matchesRegulation || matchesJurisdiction || matchesCategory;
   });
@@ -603,6 +658,373 @@ ${cs.lessonsLearned}`,
     }
   }
   
+  // Check for California ESG disclosure (SB-253/261)
+  if (queryLower.includes('sb-253') || queryLower.includes('sb253') || 
+      queryLower.includes('sb-261') || queryLower.includes('sb261') ||
+      queryLower.includes('california climate') || queryLower.includes('climate disclosure') ||
+      (queryLower.includes('california') && (queryLower.includes('scope 1') || queryLower.includes('scope 2') || queryLower.includes('scope 3')))) {
+    const caEntry = globalComplianceKnowledge.find(e => e.id === 'ca-sb253-1');
+    if (caEntry) {
+      return {
+        content: caEntry.content,
+        suggestions: ['CA SB-253', 'CA SB-261', 'Scope 3 Reporting', 'TCFD']
+      };
+    }
+  }
+  
+  // Check for Halogen-free standards
+  if (queryLower.includes('halogen-free') || queryLower.includes('halogen free') || 
+      queryLower.includes('iec 61249') || queryLower.includes('jpca-es-01') ||
+      queryLower.includes('chlorine limit') || queryLower.includes('bromine limit') ||
+      queryLower.includes('tbbpa') || (queryLower.includes('pcb') && queryLower.includes('halogen'))) {
+    const halogenEntry = globalComplianceKnowledge.find(e => e.id === 'halogen-free-1');
+    if (halogenEntry) {
+      return {
+        content: halogenEntry.content,
+        suggestions: ['IEC 61249', 'Halogen-Free PCB', 'Flame Retardants']
+      };
+    }
+  }
+  
+  // Check for software/ERP/QMS questions
+  if (queryLower.includes('sage 100') || queryLower.includes('sage erp') || 
+      queryLower.includes('mas 90') || queryLower.includes('iqms') ||
+      queryLower.includes('delmiaworks') || queryLower.includes('erp') ||
+      queryLower.includes('qms software') || queryLower.includes('manufacturing software')) {
+    const relevantSoftware = qualitySoftwareSystems.find(k => 
+      k.keywords.some((kw: string) => queryLower.includes(kw))
+    );
+    if (relevantSoftware) {
+      return {
+        content: relevantSoftware.content,
+        suggestions: ['Sage 100', 'IQMS/DELMIAWorks', 'QMS Features', 'ERP for Quality']
+      };
+    }
+  }
+  
+  // Check for PFAS questions
+  if (queryLower.includes('pfas') || queryLower.includes('forever chemical') ||
+      queryLower.includes('pfoa') || queryLower.includes('pfos') ||
+      queryLower.includes('fluorinated')) {
+    const pfasEntry = globalComplianceKnowledge.find(e => e.id === 'us-pfas-1');
+    if (pfasEntry) {
+      return {
+        content: pfasEntry.content,
+        suggestions: ['PFAS Reporting', 'PFOS/PFOA', 'PFAS Restrictions', 'EPA PFAS']
+      };
+    }
+  }
+  
+  // Check for POPS (Persistent Organic Pollutants)
+  if (queryLower.includes('pops') || queryLower.includes('stockholm convention') ||
+      queryLower.includes('persistent organic pollutant') || queryLower.includes('sccp')) {
+    const popsEntry = globalComplianceKnowledge.find(e => e.id === 'eu-pops-1');
+    if (popsEntry) {
+      return {
+        content: popsEntry.content,
+        suggestions: ['EU POPS', 'Stockholm Convention', 'PFOS', 'SCCPs', 'POPS Restrictions']
+      };
+    }
+  }
+  
+  // Check for EU MDR
+  if (queryLower.includes('eu mdr') || queryLower.includes('medical device regulation') ||
+      queryLower.includes('udi') || queryLower.includes('eudamed')) {
+    const mdrEntry = globalComplianceKnowledge.find(e => e.id === 'eu-mdr-1');
+    if (mdrEntry) {
+      return {
+        content: mdrEntry.content,
+        suggestions: ['EU MDR Requirements', 'UDI', 'EUDAMED', 'Medical Device CE']
+      };
+    }
+  }
+  
+  // Check for TSCA Section 6
+  if (queryLower.includes('tsca section 6') || queryLower.includes('tsca restrictions') ||
+      (queryLower.includes('tsca') && (queryLower.includes('restriction') || queryLower.includes('prohibit')))) {
+    const tsca6Entry = globalComplianceKnowledge.find(e => e.id === 'us-tsca-6');
+    if (tsca6Entry) {
+      return {
+        content: tsca6Entry.content,
+        suggestions: ['TSCA Section 6', 'TSCA Restrictions', 'PCE', 'HBCD', 'TCE']
+      };
+    }
+  }
+  
+  // Check for REACH Annex XIV
+  if (queryLower.includes('reach annex xiv') || queryLower.includes('authorization') ||
+      queryLower.includes('sunset date') || queryLower.includes('authorized substance')) {
+    const annex14Entry = globalComplianceKnowledge.find(e => e.id === 'eu-reach-14');
+    if (annex14Entry) {
+      return {
+        content: annex14Entry.content,
+        suggestions: ['REACH Annex XIV', 'Authorization', 'Sunset Dates', 'SVHC Authorization']
+      };
+    }
+  }
+  
+  // Check for REACH Annex XVII
+  if (queryLower.includes('reach annex xvii') || queryLower.includes('restriction') ||
+      queryLower.includes('restricted substance') || queryLower.includes('annex 17')) {
+    const annex17Entry = globalComplianceKnowledge.find(e => e.id === 'eu-reach-17');
+    if (annex17Entry) {
+      return {
+        content: annex17Entry.content,
+        suggestions: ['REACH Annex XVII', 'Restricted Substances', 'CMR', 'PBT Restrictions']
+      };
+    }
+  }
+  
+  // Check for AI/ML in Quality questions
+  if (queryLower.includes('ai') || queryLower.includes('artificial intelligence') || 
+      queryLower.includes('machine learning') || queryLower.includes('computer vision') ||
+      queryLower.includes('digital twin') || queryLower.includes('predictive quality') ||
+      queryLower.includes('automated inspection') || queryLower.includes('nlp') ||
+      queryLower.includes('mlops') || queryLower.includes('smart manufacturing')) {
+    const relevantAI = aiQualityKnowledge.find(k => 
+      k.keywords.some((kw: string) => queryLower.includes(kw))
+    );
+    if (relevantAI) {
+      return {
+        content: relevantAI.content,
+        suggestions: ['Computer Vision', 'Digital Twin', 'Predictive Quality', 'MLOps', 'AI Inspection']
+      };
+    }
+    // Return general AI in Quality overview if no specific match
+    return {
+      content: `**AI/ML in Quality & Manufacturing**
+
+I can help you with AI applications in quality:
+
+**Computer Vision:**
+- Automated defect detection with deep learning
+- Visual inspection systems (99%+ accuracy)
+- Applications: automotive, electronics, textiles, food
+
+**Predictive Quality Analytics:**
+- Predict defects before they occur
+- Machine learning models for quality prediction
+- Process drift detection
+
+**Digital Twins:**
+- Virtual replicas for simulation
+- Process optimization without risk
+- Predictive maintenance
+
+**NLP for Quality:**
+- Customer complaint analysis
+- Root cause analysis from text
+- Voice of Customer mining
+
+**MLOps for Quality:**
+- Deploy and maintain ML models in production
+- Model monitoring and drift detection
+- Regulatory compliance (FDA 21 CFR Part 11)
+
+Ask about any specific AI quality topic!`,
+      suggestions: ['Computer Vision', 'Predictive Analytics', 'Digital Twin', 'NLP', 'MLOps']
+    };
+  }
+  
+  // Check for UK REACH (Post-Brexit)
+  if (queryLower.includes('uk reach') || queryLower.includes('gb reach') || 
+      queryLower.includes('brexit chemicals') || (queryLower.includes('uk') && queryLower.includes('reach')) ||
+      queryLower.includes('duin') || queryLower.includes('hse chemicals')) {
+    const ukReachEntry = globalComplianceKnowledge.find(e => e.id === 'uk-reach-1');
+    if (ukReachEntry) {
+      return {
+        content: ukReachEntry.content,
+        suggestions: ['UK REACH', 'GB Only Representative', 'DUIN', 'HSE', 'Northern Ireland REACH']
+      };
+    }
+  }
+  
+  // Check for EU CBAM
+  if (queryLower.includes('cbam') || queryLower.includes('carbon border') || 
+      queryLower.includes('carbon import') || queryLower.includes('carbon adjustment') ||
+      queryLower.includes('embedded emissions') || queryLower.includes('carbon tariff')) {
+    const cbamEntry = globalComplianceKnowledge.find(e => e.id === 'eu-cbam-1');
+    if (cbamEntry) {
+      return {
+        content: cbamEntry.content,
+        suggestions: ['CBAM', 'Carbon Border Adjustment', 'Embedded Emissions', 'EU Climate', 'Carbon Price']
+      };
+    }
+  }
+  
+  // Check for Digital Product Passport
+  if (queryLower.includes('digital product passport') || queryLower.includes('dpp') || 
+      queryLower.includes('product passport') || queryLower.includes('battery passport') ||
+      (queryLower.includes('qr code') && queryLower.includes('product')) ||
+      queryLower.includes('espr') || queryLower.includes('ecodesign sustainable')) {
+    const dppEntry = globalComplianceKnowledge.find(e => e.id === 'eu-dpp-1');
+    if (dppEntry) {
+      return {
+        content: dppEntry.content,
+        suggestions: ['Digital Product Passport', 'Battery Passport', 'ESPR', 'Circular Economy', 'Sustainability Data']
+      };
+    }
+  }
+  
+  // Check for EPR (Extended Producer Responsibility)
+  if (queryLower.includes('epr') || queryLower.includes('extended producer') || 
+      queryLower.includes('producer responsibility') || queryLower.includes('packaging waste') ||
+      queryLower.includes('weee') || queryLower.includes('battery recycling') ||
+      queryLower.includes('textile waste') || queryLower.includes('circular economy regulation')) {
+    const eprEntry = globalComplianceKnowledge.find(e => e.id === 'eu-epr-1');
+    if (eprEntry) {
+      return {
+        content: eprEntry.content,
+        suggestions: ['EPR', 'Extended Producer Responsibility', 'Packaging Waste', 'Battery Recycling', 'WEEE']
+      };
+    }
+  }
+  
+  // Check for Green Claims / Anti-Greenwashing
+  if (queryLower.includes('green claim') || queryLower.includes('greenwashing') || 
+      queryLower.includes('environmental marketing') || queryLower.includes('eco-friendly claim') ||
+      queryLower.includes('climate neutral') || queryLower.includes('carbon neutral claim') ||
+      queryLower.includes('anti-greenwashing') || queryLower.includes('substantiation')) {
+    const greenClaimsEntry = globalComplianceKnowledge.find(e => e.id === 'eu-green-claims-1');
+    if (greenClaimsEntry) {
+      return {
+        content: greenClaimsEntry.content,
+        suggestions: ['Green Claims', 'Anti-Greenwashing', 'Environmental Marketing', 'Climate Neutral', 'Substantiation']
+      };
+    }
+  }
+  
+  // Check for China RoHS 2
+  if (queryLower.includes('china rohs') || queryLower.includes('sj/t 11364') || 
+      queryLower.includes('efup') || queryLower.includes('pollution control mark') ||
+      (queryLower.includes('china') && queryLower.includes('rohs')) ||
+      queryLower.includes('administrative measures hazardous substances')) {
+    const chinaRohsEntry = globalComplianceKnowledge.find(e => e.id === 'cn-rohs-2-1');
+    if (chinaRohsEntry) {
+      return {
+        content: chinaRohsEntry.content,
+        suggestions: ['China RoHS 2', 'SJ/T 11364', 'EFUP', 'Pollution Control Mark', 'E-Label']
+      };
+    }
+  }
+  
+  // Check for India RoHS
+  if (queryLower.includes('india rohs') || queryLower.includes('e-waste india') || 
+      queryLower.includes('cpcb') || (queryLower.includes('india') && queryLower.includes('electronics')) ||
+      queryLower.includes('moefcc') || queryLower.includes('schedule i eee')) {
+    const indiaRohsEntry = globalComplianceKnowledge.find(e => e.id === 'in-rohs-1');
+    if (indiaRohsEntry) {
+      return {
+        content: indiaRohsEntry.content,
+        suggestions: ['India RoHS', 'E-Waste India', 'CPCB', 'India Electronics', 'Schedule I EEE']
+      };
+    }
+  }
+  
+  // Check for ANOVA calculation requests
+  if (queryLower.includes('anova') || queryLower.includes('analysis of variance')) {
+    return {
+      content: `**ANOVA (Analysis of Variance) Calculator**
+
+I can help you perform One-Way ANOVA to compare means across multiple groups.
+
+**What ANOVA tells you:**
+- Are there significant differences between group means?
+- How much of the variance is explained by group differences?
+
+**Required Input:**
+- Data for each group (3+ groups recommended)
+- Example format: Group 1: [10, 12, 11, 13], Group 2: [15, 14, 16, 15], Group 3: [8, 9, 10, 9]
+
+**Output includes:**
+- F-statistic and degrees of freedom
+- Sum of squares (between, within, total)
+- Mean squares
+- Effect size (η² - eta squared)
+
+**Interpretation:**
+- F > F-critical (from F-table) → Significant difference
+- η² > 0.14 = large effect, > 0.06 = medium, > 0.01 = small
+
+Use the ANOVA function in the Calculators module with your data arrays.`,
+      suggestions: ['ANOVA Calculator', 'F-Statistic', 'Group Comparison', 'Variance Analysis']
+    };
+  }
+  
+  // Check for Regression calculation requests
+  if (queryLower.includes('regression') || queryLower.includes('linear regression') || 
+      queryLower.includes('correlation') || queryLower.includes('r-squared') ||
+      queryLower.includes('trend analysis') || queryLower.includes('predict y from x')) {
+    return {
+      content: `**Linear Regression Calculator**
+
+I can help you perform simple linear regression analysis: y = mx + b
+
+**What regression tells you:**
+- Relationship between two variables (x and y)
+- How well x predicts y (R-squared)
+- Slope and intercept of the best-fit line
+
+**Required Input:**
+- X values (independent variable)
+- Y values (dependent variable)
+- Same number of data points for both
+
+**Output includes:**
+- Regression equation
+- Slope and intercept with standard errors
+- R-squared (percentage of variance explained)
+- Correlation coefficient (r)
+
+**Interpretation:**
+- R² > 0.7 = Strong predictive model
+- R² > 0.5 = Moderate predictive power
+- Slope direction indicates positive/negative relationship
+
+Use the Regression function in the Calculators module with your x and y arrays.`,
+      suggestions: ['Regression Calculator', 'R-Squared', 'Correlation', 'Trend Analysis', 'Prediction']
+    };
+  }
+  
+  // Check for Gage R&R requests
+  if (queryLower.includes('gage r&r') || queryLower.includes('gage rr') || 
+      queryLower.includes('repeatability') || queryLower.includes('reproducibility') ||
+      queryLower.includes('measurement system analysis') || queryLower.includes('msa study') ||
+      queryLower.includes('measurement error')) {
+    return {
+      content: `**Gage R&R (Repeatability & Reproducibility) Calculator**
+
+I can help you perform Measurement System Analysis (MSA) using ANOVA method.
+
+**What Gage R&R tells you:**
+- How much measurement variation comes from:
+  - Equipment (Repeatability)
+  - Operators (Reproducibility)
+  - Parts (Part-to-part variation)
+
+**Required Input:**
+- Measurements: [parts][operators][trials] 3D array
+- Tolerance range for the measurement
+- Typical study: 10 parts × 3 operators × 3 trials = 90 measurements
+
+**Output includes:**
+- EV (Equipment Variation)
+- AV (Appraiser Variation)
+- GRR (Combined Gage R&R)
+- PV (Part Variation)
+- % of Tolerance
+- % Contribution to variance
+
+**Acceptability Criteria (AIAG):**
+- < 10% of tolerance: ✅ Acceptable
+- 10-30% of tolerance: ⚠️ Marginal
+- > 30% of tolerance: ❌ Unacceptable
+
+Use the GageRr function in the Calculators module with your measurement data.`,
+      suggestions: ['Gage R&R', 'Measurement System Analysis', 'Repeatability', 'Reproducibility', 'MSA']
+    };
+  }
+  
   // Find relevant knowledge
   const relevantKnowledge = findRelevantKnowledge(query);
   
@@ -619,14 +1041,14 @@ ${cs.lessonsLearned}`,
   // Default responses for common questions
   if (queryLower.includes('hello') || queryLower.includes('hi')) {
     return {
-      content: 'Hello! I\'m your Six Sigma & Compliance Assistant. I can help you with:\n\n• **Six Sigma DMAIC** - Define, Measure, Analyze, Improve, Control\n• **Statistical tools** - Control charts, capability analysis, hypothesis tests\n• **Certification guidance** - White, Yellow, Green, Black Belt\n• **Global Compliance** - REACH, RoHS, Prop 65, TSCA, Phthalates, BPA\n• **Problem solving** - Root cause analysis, 5 Whys, Fishbone diagrams\n• **Process improvement** - Lean tools, waste reduction, flow optimization\n\nWhat would you like to learn about?',
-      suggestions: ['DMAIC Overview', 'REACH Compliance', 'Certification Paths', 'Prop 65', 'Statistical Tools']
+      content: 'Hello! I\'m your Six Sigma & Compliance Assistant. I can help you with:\n\n• **Six Sigma DMAIC** - Define, Measure, Analyze, Improve, Control\n• **Statistical tools** - Control charts, capability analysis, hypothesis tests\n• **Certification guidance** - White, Yellow, Green, Black Belt\n• **Global Compliance** - REACH, RoHS, Prop 65, TSCA, Phthalates, BPA, PFAS\n• **Medical Devices** - EU MDR, FDA QSR, ISO 13485\n• **Quality Software** - Sage 100, IQMS/DELMIAWorks\n• **Problem solving** - Root cause analysis, 5 Whys, Fishbone diagrams\n• **Process improvement** - Lean tools, waste reduction, flow optimization\n\nWhat would you like to learn about?',
+      suggestions: ['DMAIC Overview', 'REACH Compliance', 'PFAS Regulations', 'EU MDR', 'Sage 100', 'Certification Paths', 'Prop 65', 'Statistical Tools']
     };
   }
   
   // General fallback
   return {
-    content: `I can help you with Six Sigma and Global Compliance topics! Here are some things you can ask:
+    content: `I can help you with Six Sigma, Global Compliance, and AI in Quality! Here are some things you can ask:
 
 **Six Sigma DMAIC:**
 • "Explain the Define phase"
@@ -637,25 +1059,46 @@ ${cs.lessonsLearned}`,
 • "How do I calculate Cpk?"
 • "Which control chart should I use?"
 • "What sample size do I need?"
+• "ANOVA calculator"
+• "Linear regression analysis"
+• "Gage R&R study"
 
 **Certification:**
 • "What are Green Belt requirements?"
 • "How do I prepare for ASQ exam?"
 
+**AI/ML in Quality:**
+• "Computer vision for defect detection"
+• "Digital twins for manufacturing"
+• "Predictive quality analytics"
+• "MLOps for quality systems"
+
 **Global Compliance:**
-• "What is REACH?"
-• "RoHS restricted substances"
+• "What is REACH?" (EU and UK)
+• "RoHS restricted substances" (EU, China, India)
 • "California Prop 65 requirements"
+• "PFAS/Forever chemicals regulations"
+• "EU MDR for medical devices"
+• "EU CBAM - Carbon Border Adjustment"
+• "Digital Product Passport"
+• "Extended Producer Responsibility (EPR)"
+• "Green Claims / Anti-Greenwashing"
+• "TSCA Section 6 restrictions"
+• "POPS/Stockholm Convention"
 • "BPA restrictions"
 • "Phthalate regulations"
 • "Heavy metals limits"
+
+**Quality Software:**
+• "Tell me about Sage 100"
+• "What is IQMS/DELMIAWorks?"
 
 **Problem Solving:**
 • "How do I do a 5 Whys?"
 • "What is a Fishbone diagram?"
 
 Try asking a specific question!`,
-    suggestions: ['DMAIC Overview', 'REACH', 'Prop 65', 'Calculate Cpk', 'Certification Requirements']
+    suggestions: ['DMAIC Overview', 'AI in Quality', 'UK REACH', 'CBAM', 'Digital Product Passport', 'EPR', 'Green Claims', 'ANOVA', 'Gage R&R']
   };
 }
 

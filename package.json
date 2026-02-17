@@ -2,7 +2,10 @@
   "name": "six-sigma-training",
   "private": true,
   "version": "1.0.0",
+  "description": "Six Sigma Training Platform - Interactive learning application",
+  "author": "Six Sigma Training Team",
   "type": "module",
+  "main": "electron/main.cjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
@@ -19,7 +22,87 @@
     "check:budgets": "node scripts/check-performance-budgets.cjs",
     "analyze": "npm run build && npm run check:budgets",
     "prepare": "husky",
-    "postinstall": "playwright install chromium"
+    "postinstall": "playwright install chromium",
+    "electron:dev": "npm run build && electron .",
+    "electron:build": "npm run build && electron-builder",
+    "electron:build:win": "npm run build && electron-builder --win",
+    "electron:build:mac": "npm run build && electron-builder --mac",
+    "electron:build:linux": "npm run build && electron-builder --linux",
+    "electron:build:portable": "npm run build && electron-builder --win portable",
+    "electron:dist": "npm run build && electron-builder --publish=never",
+    "installer": "npm run electron:build:win"
+  },
+  "build": {
+    "appId": "com.sixsigma.training",
+    "productName": "Six Sigma Training Platform",
+    "copyright": "Copyright © 2026",
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.cjs"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "dist/favicon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Six Sigma Training",
+      "installerIcon": "dist/favicon.ico",
+      "uninstallerIcon": "dist/favicon.ico",
+      "installerHeaderIcon": "dist/favicon.ico",
+      "artifactName": "SixSigma-Training-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "SixSigma-Training-Portable-${version}.${ext}"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["x64", "arm64"]
+        }
+      ],
+      "category": "public.app-category.education",
+      "icon": "dist/favicon.ico"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        },
+        {
+          "target": "deb",
+          "arch": ["x64"]
+        }
+      ],
+      "category": "Education",
+      "icon": "dist/favicon.ico"
+    },
+    "asar": true,
+    "asarUnpack": [],
+    "compression": "maximum",
+    "removePackageScripts": true
   },
   "dependencies": {
     "@sentry/react": "^10.38.0",
@@ -38,6 +121,7 @@
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
+    "@electron/notarize": "^2.5.0",
     "@eslint/js": "^9.17.0",
     "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",
@@ -47,6 +131,8 @@
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
+    "electron": "^40.4.1",
+    "electron-builder": "^26.7.0",
     "eslint": "^9.17.0",
     "eslint-plugin-react-hooks": "^5.1.0",
     "eslint-plugin-react-refresh": "^0.4.16",

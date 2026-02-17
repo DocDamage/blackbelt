@@ -62,7 +62,7 @@ export function SmartScheduler() {
             const totalMinutes = hoursPerWeek * 60 * (daysAvailable / 7);
             const sessionCount = Math.floor(totalMinutes / 60); // 60 min sessions
             
-            let currentDate = new Date(today);
+            const currentDate = new Date(today);
             let topicIndex = 0;
             
             for (let i = 0; i < Math.min(sessionCount, 30); i++) {

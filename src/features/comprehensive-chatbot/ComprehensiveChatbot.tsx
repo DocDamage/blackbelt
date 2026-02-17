@@ -2,6 +2,8 @@
  * Comprehensive Six Sigma Chatbot
  * 
  * An all-knowing chatbot that can answer any Six Sigma-related question.
+ * 
+ * Technical Debt Fix - Issue 61: Added rate limiting to prevent spam
  */
 
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -10,6 +12,14 @@ import { getLogger } from '../../utils/logger';
 import { comprehensiveResponseGenerator } from './ComprehensiveResponseGenerator';
 
 const logger = getLogger('ComprehensiveChatbot');
+
+// Rate limiting configuration (Issue 61 fix)
+const RATE_LIMIT = {
+  MIN_QUERY_INTERVAL_MS: 1000, // Minimum 1 second between queries
+  MAX_MESSAGES_PER_MINUTE: 20, // Max 20 messages per minute
+  MAX_CONVERSATION_LENGTH: 100, // Max 100 messages in conversation
+  COOLDOWN_AFTER_ERROR_MS: 3000, // 3 second cooldown after errors
+};
 
 interface Message {
   id: string;
@@ -48,8 +58,14 @@ export function ComprehensiveChatbot() {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const [rateLimitError, setRateLimitError] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  
+  // Rate limiting refs (Issue 61 fix)
+  const lastQueryTimeRef = useRef<number>(0);
+  const queryCountRef = useRef<{ timestamp: number }[]>([]);
+  const cooldownTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = useCallback(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -65,9 +81,69 @@ export function ComprehensiveChatbot() {
     }
   }, [isOpen]);
 
+  // Cleanup cooldown timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (cooldownTimeoutRef.current) {
+        clearTimeout(cooldownTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  /**
+   * Check rate limiting rules (Issue 61 fix)
+   * Returns null if allowed, or error message if rate limited
+   */
+  const checkRateLimit = useCallback((): string | null => {
+    const now = Date.now();
+    
+    // Check minimum interval between queries
+    const timeSinceLastQuery = now - lastQueryTimeRef.current;
+    if (timeSinceLastQuery < RATE_LIMIT.MIN_QUERY_INTERVAL_MS) {
+      const waitTime = Math.ceil((RATE_LIMIT.MIN_QUERY_INTERVAL_MS - timeSinceLastQuery) / 1000);
+      return `Please wait ${waitTime} second${waitTime > 1 ? 's' : ''} before sending another message.`;
+    }
+    
+    // Clean up old queries (older than 1 minute)
+    queryCountRef.current = queryCountRef.current.filter(
+      q => now - q.timestamp < 60000
+    );
+    
+    // Check max messages per minute
+    if (queryCountRef.current.length >= RATE_LIMIT.MAX_MESSAGES_PER_MINUTE) {
+      return `You've reached the limit of ${RATE_LIMIT.MAX_MESSAGES_PER_MINUTE} messages per minute. Please wait a moment.`;
+    }
+    
+    // Check conversation length
+    if (messages.length >= RATE_LIMIT.MAX_CONVERSATION_LENGTH) {
+      return `Conversation limit reached (${RATE_LIMIT.MAX_CONVERSATION_LENGTH} messages). Please start a new conversation.`;
+    }
+    
+    return null;
+  }, [messages.length]);
+
   const handleSend = useCallback(async () => {
     const query = inputValue.trim();
     if (!query || isTyping) return;
+
+    // Check rate limiting (Issue 61 fix)
+    const rateLimitMessage = checkRateLimit();
+    if (rateLimitMessage) {
+      setRateLimitError(rateLimitMessage);
+      // Clear error after 3 seconds
+      if (cooldownTimeoutRef.current) {
+        clearTimeout(cooldownTimeoutRef.current);
+      }
+      cooldownTimeoutRef.current = setTimeout(() => {
+        setRateLimitError(null);
+      }, 3000);
+      return;
+    }
+
+    // Record this query for rate limiting
+    lastQueryTimeRef.current = Date.now();
+    queryCountRef.current.push({ timestamp: Date.now() });
+    setRateLimitError(null);
 
     logger.info('User query', { query });
 
@@ -105,10 +181,13 @@ export function ComprehensiveChatbot() {
       };
 
       setMessages(prev => [...prev, errorMessage]);
+      
+      // Apply cooldown after error (Issue 61 fix)
+      lastQueryTimeRef.current = Date.now() + RATE_LIMIT.COOLDOWN_AFTER_ERROR_MS;
     } finally {
       setIsTyping(false);
     }
-  }, [inputValue, isTyping, logger]);
+  }, [inputValue, isTyping, logger, checkRateLimit]);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -227,6 +306,13 @@ export function ComprehensiveChatbot() {
             </div>
           </div>
 
+          {rateLimitError && (
+            <div className="chatbot-rate-limit-error" role="alert">
+              <span className="rate-limit-icon">⏱️</span>
+              <span className="rate-limit-text">{rateLimitError}</span>
+            </div>
+          )}
+
           <div className="chatbot-input-area">
             <input
               ref={inputRef}
@@ -237,11 +323,11 @@ export function ComprehensiveChatbot() {
               placeholder="Ask about DMAIC, statistics, certification..."
               className="chatbot-input"
               aria-label="Type your question"
-              disabled={isTyping}
+              disabled={isTyping || !!rateLimitError}
             />
             <button
               onClick={handleSend}
-              disabled={!inputValue.trim() || isTyping}
+              disabled={!inputValue.trim() || isTyping || !!rateLimitError}
               className="chatbot-send"
               aria-label="Send message"
             >

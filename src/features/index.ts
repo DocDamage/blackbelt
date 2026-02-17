@@ -44,3 +44,22 @@ export * from './offline-pwa/offlineManager';
 
 // Comprehensive Chatbot
 export { ComprehensiveChatbot } from './comprehensive-chatbot/ComprehensiveChatbot';
+
+// Phase 5: Advanced Features
+export { 
+  InteractiveSimulations,
+  ControlChartBuilder,
+  DOEPlanner,
+  ProcessMappingTool,
+} from './interactive-simulations';
+export * from './interactive-simulations';
+
+export { 
+  IndustryTracks,
+  INDUSTRY_TRACKS,
+  INDUSTRY_MODULES,
+} from './industry-tracks';
+export * from './industry-tracks';
+
+export { SoftwareIntegrations } from './software-integrations';
+export * from './software-integrations';

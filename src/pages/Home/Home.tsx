@@ -63,12 +63,12 @@ const belts: BeltCardData[] = [
 ];
 
 const features = [
-    { icon: '📚', title: 'Comprehensive Content', description: 'Real certification-level curriculum sourced from ASQ standards' },
-    { icon: '🎯', title: 'Interactive Quizzes', description: 'Test your knowledge with practice exams and assessments' },
-    { icon: '📊', title: 'Statistical Tools', description: 'Built-in calculators for SPC, DOE, and capability analysis' },
-    { icon: '🏆', title: 'Certificates', description: 'Earn certificates upon completing each belt level' },
-    { icon: '📹', title: 'Video Lessons', description: 'Learn from embedded video content and tutorials' },
-    { icon: '💾', title: 'Progress Tracking', description: 'Your progress is saved locally and persists between sessions' },
+    { icon: '📚', title: 'Comprehensive Content', description: 'Real certification-level curriculum sourced from ASQ standards', link: '/belts/white' },
+    { icon: '🎯', title: 'Interactive Quizzes', description: 'Test your knowledge with practice exams and assessments', link: '/belts/white?tab=quiz' },
+    { icon: '📊', title: 'Statistical Tools', description: 'Built-in calculators for SPC, DOE, and capability analysis', link: '/tools/capability' },
+    { icon: '🏆', title: 'Certificates', description: 'Earn certificates upon completing each belt level', link: '/certificates' },
+    { icon: '📹', title: 'Video Lessons', description: 'Learn from embedded video content and tutorials', link: '/belts/white' },
+    { icon: '💾', title: 'Progress Tracking', description: 'Your progress is saved locally and persists between sessions', link: '/' },
 ];
 
 interface HomeProps {
@@ -158,11 +158,11 @@ export function Home({ beltProgress }: HomeProps) {
                 </div>
                 <div className="features-grid">
                     {features.map((feature, index) => (
-                        <div key={index} className="feature-card">
+                        <Link key={index} to={feature.link} className="feature-card">
                             <div className="feature-icon">{feature.icon}</div>
                             <h3 className="feature-title">{feature.title}</h3>
                             <p className="feature-description">{feature.description}</p>
-                        </div>
+                        </Link>
                     ))}
                 </div>
             </section>

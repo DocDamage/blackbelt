@@ -291,6 +291,40 @@
   color: #1976d2;
 }
 
+/* Rate Limit Error (Issue 61 fix) */
+.chatbot-rate-limit-error {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #fff3e0;
+  border-top: 1px solid #ffe0b2;
+  color: #e65100;
+  font-size: 13px;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rate-limit-icon {
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.rate-limit-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
 /* Input Area */
 .chatbot-input-area {
   display: flex;

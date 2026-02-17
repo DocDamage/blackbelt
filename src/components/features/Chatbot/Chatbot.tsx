@@ -1,6 +1,8 @@
 /**
  * Six Sigma Chatbot Component
  * Main UI component that uses extracted modules for logic
+ * 
+ * Technical Debt Fix - Issue 50: Dynamic import for xlsx to reduce bundle size
  */
 
 import { useState, useRef, useEffect } from 'react';
@@ -8,9 +10,6 @@ import './Chatbot.css';
 import { ChatbotMessage } from './ChatbotMessage';
 import { generateResponse } from './ChatbotResponseGenerator';
 import { MIN_TYPING_DELAY, MAX_TYPING_DELAY } from '../../../utils/constants';
-
-// Excel file processing
-import * as XLSX from 'xlsx';
 
 interface UploadedData {
     filename: string;
@@ -22,7 +21,10 @@ interface UploadedData {
     }[];
 }
 
-function processExcelFile(file: File): Promise<UploadedData> {
+async function processExcelFile(file: File): Promise<UploadedData> {
+    // Dynamically import xlsx only when needed (Issue 50 fix)
+    const XLSX = await import('xlsx');
+    
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (e) => {

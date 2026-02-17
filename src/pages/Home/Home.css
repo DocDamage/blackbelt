@@ -272,11 +272,20 @@
     padding: var(--space-6);
     text-align: center;
     transition: all var(--transition-normal);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+    display: block;
 }
 
 .feature-card:hover {
-    transform: translateY(-2px);
+    transform: translateY(-4px);
     border-color: var(--color-primary-500);
+    box-shadow: var(--shadow-lg);
+}
+
+.feature-card:active {
+    transform: translateY(-2px);
 }
 
 .feature-icon {

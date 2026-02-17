@@ -64,6 +64,8 @@
     border-radius: var(--radius-full);
     cursor: pointer;
     transition: all var(--transition-fast);
+    text-decoration: none;
+    color: inherit;
 }
 
 .navbar-user:hover {

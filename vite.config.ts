@@ -45,6 +45,8 @@ function logBudgetStatus(chunkName: string, size: number, budget: number) {
 }
 
 export default defineConfig({
+    // Base path for Electron file:// protocol
+    base: './',
     plugins: [react()],
     resolve: {
         alias: {
@@ -61,6 +63,10 @@ export default defineConfig({
                 manualChunks: (id) => {
                     // Split node_modules into vendor chunks
                     if (id.includes('node_modules')) {
+                        // xlsx - large Excel library (dynamically imported)
+                        if (id.includes('xlsx')) {
+                            return 'xlsx';
+                        }
                         // React ecosystem
                         if (id.includes('react') || id.includes('react-dom') || id.includes('react-router')) {
                             return 'react-vendor';

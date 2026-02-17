@@ -10,6 +10,7 @@ import { getBeltProgress } from './utils/db';
 import { CertificatesPage } from './pages/certificates/CertificatesPage';
 import { CertificateValidatePage } from './pages/certificates/CertificateValidatePage';
 import { ToolsPage as ToolsCalculatorPage } from './pages/Tools/ToolsPage';
+import { LoginPage } from './pages/Login/LoginPage';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { UserProvider } from './contexts/UserContext';
 
@@ -316,6 +317,9 @@ function App() {
                             {/* Certificates */}
                             <Route path="/certificates" element={<CertificatesPage />} />
                             <Route path="/certificates/:id" element={<CertificateValidatePage />} />
+
+                            {/* Login */}
+                            <Route path="/login" element={<LoginPage />} />
 
                             {/* 404 */}
                             <Route path="*" element={

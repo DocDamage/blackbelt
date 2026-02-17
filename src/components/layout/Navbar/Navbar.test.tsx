@@ -4,6 +4,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { getUserProfile } from '../../../utils/db';
 
@@ -26,38 +27,64 @@ describe('Navbar', () => {
     describe('Rendering', () => {
         it('renders navbar', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-            render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+            render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             expect(document.querySelector('.navbar')).toBeInTheDocument();
         });
 
         it('displays logo', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-            render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+            render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             expect(screen.getByText('6σ')).toBeInTheDocument();
         });
 
         it('displays title', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-            render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+            render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             expect(screen.getByText('Six Sigma Academy')).toBeInTheDocument();
             expect(screen.getByText('Certification Training')).toBeInTheDocument();
         });
 
         it('displays hamburger menu when sidebar is closed', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-            render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+            render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             expect(screen.getByText('☰')).toBeInTheDocument();
         });
 
-        it('displays close icon when sidebar is open', () => {
+        it('displays close icon when sidebar is open', async () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-            render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={true} />);
+            await act(async () => {
+                render(
+                    <MemoryRouter>
+                        <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={true} />
+                    </MemoryRouter>
+                );
+            });
             expect(screen.getByText('✕')).toBeInTheDocument();
         });
 
         it('displays theme toggle button', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-            render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+            render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             expect(screen.getByLabelText(/switch to.*mode/i)).toBeInTheDocument();
         });
 
@@ -65,7 +92,11 @@ describe('Navbar', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(screen.getByText('Guest')).toBeInTheDocument();
@@ -75,7 +106,11 @@ describe('Navbar', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(screen.getByText('?')).toBeInTheDocument();
@@ -92,7 +127,11 @@ describe('Navbar', () => {
             });
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(screen.getByText('John Doe')).toBeInTheDocument();
@@ -107,7 +146,11 @@ describe('Navbar', () => {
             });
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(screen.getByText('JD')).toBeInTheDocument();
@@ -122,7 +165,11 @@ describe('Navbar', () => {
             });
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(screen.getByText('J')).toBeInTheDocument();
@@ -137,7 +184,11 @@ describe('Navbar', () => {
             });
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(screen.getByText('JM')).toBeInTheDocument();
@@ -152,7 +203,11 @@ describe('Navbar', () => {
             });
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             // Wait a bit for theme to be applied
@@ -169,7 +224,11 @@ describe('Navbar', () => {
     describe('Menu Toggle', () => {
         it('calls onMenuToggle when menu button clicked', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-            render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+            render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             
             fireEvent.click(screen.getByLabelText('Toggle menu'));
             
@@ -185,7 +244,11 @@ describe('Navbar', () => {
             });
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(screen.getByText('☀️')).toBeInTheDocument();
@@ -198,7 +261,11 @@ describe('Navbar', () => {
             });
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(screen.getByText('🌙')).toBeInTheDocument();
@@ -211,7 +278,11 @@ describe('Navbar', () => {
             });
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(screen.getByText('☀️')).toBeInTheDocument();
@@ -230,7 +301,11 @@ describe('Navbar', () => {
             });
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(screen.getByLabelText('Switch to light mode')).toBeInTheDocument();
@@ -241,7 +316,11 @@ describe('Navbar', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
             
             await act(async () => {
-                render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+                render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             });
             
             expect(document.documentElement.getAttribute('data-theme')).toBe('light');
@@ -251,7 +330,11 @@ describe('Navbar', () => {
     describe('CSS Classes', () => {
         it('applies correct CSS classes', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-            render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+            render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             
             expect(document.querySelector('.navbar')).toBeInTheDocument();
             expect(document.querySelector('.navbar-brand')).toBeInTheDocument();
@@ -263,7 +346,11 @@ describe('Navbar', () => {
 
         it('applies mobile menu button class', () => {
             (getUserProfile as ReturnType<typeof vi.fn>).mockResolvedValue(null);
-            render(<Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />);
+            render(
+                <MemoryRouter>
+                    <Navbar onMenuToggle={mockOnMenuToggle} isSidebarOpen={false} />
+                </MemoryRouter>
+            );
             
             expect(document.querySelector('.mobile-menu-btn')).toBeInTheDocument();
         });

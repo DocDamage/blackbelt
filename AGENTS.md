@@ -12,7 +12,8 @@ This guide provides essential information for AI agents working on the Six Sigma
 | **Lint Command** | `npm run lint` |
 | **Build Command** | `npm run build` |
 | **Node Version** | 20.x+ |
-| **Features** | 15 new features in `src/features/` |
+| **Features** | 16 new features in `src/features/` |
+| **Knowledge Base** | 100+ entries across 15 files |
 
 ## Testing Guidelines
 
@@ -246,12 +247,37 @@ export const apiClient = new ApiClient(import.meta.env.VITE_API_URL);
 | **Mentorship Matching** | `src/features/mentorship/` | Smart algorithm with 4 mock mentors |
 | **Offline PWA** | `src/features/offline-pwa/` | Download manager & offline sync |
 
+### Phase 5: Comprehensive Chatbot & Compliance
+| Feature | Location | Description |
+|---------|----------|-------------|
+| **Comprehensive Chatbot** | `src/features/comprehensive-chatbot/` | AI assistant with 100+ knowledge entries, rate limiting, browser compatibility |
+| **DMAIC Knowledge Base** | `ComprehensiveKnowledgeBase.ts` | Full DMAIC phase guidance |
+| **Six Sigma Tools** | `SixSigmaToolsKnowledge.ts` | 15+ statistical and lean tools |
+| **AI/ML Quality Knowledge** | `AIQualityKnowledge.ts` | Computer vision, predictive analytics, digital twins, NLP, MLOps |
+| **Global Compliance** | `GlobalComplianceKnowledge.ts` | 50+ regulations (REACH, RoHS, Prop 65, PFAS, EU MDR, POPS, TSCA Section 6, UK REACH, CBAM, etc.) |
+| **Additional Regulations** | `AdditionalRegulations.ts` | EU POPs, REACH Annex XIV/XVII, TSCA PFAS reporting |
+| **California ESG** | `GlobalComplianceKnowledge.ts` | CA SB-253 (Climate Disclosure), CA SB-261 (Climate Risk), TCFD reporting |
+| **EU Green Deal** | `GlobalComplianceKnowledge.ts` | CBAM, Digital Product Passport, EPR, Green Claims |
+| **Asia-Pacific RoHS** | `GlobalComplianceKnowledge.ts` | China RoHS 2, India E-Waste Rules |
+| **Halogen-Free** | `GlobalComplianceKnowledge.ts` | IEC 61249-2-21, JPCA-ES-01-2003, flame retardant alternatives |
+| **Industry Playbooks** | `IndustryPlaybooks.ts` | Medical, Automotive, Aerospace, Pharma, Food, Electronics |
+| **Supplier Compliance** | `SupplierCompliance.ts` | Conflict minerals, supplier audits, certificates of compliance |
+| **SDS & Labeling** | `SDSAndLabeling.ts` | GHS classification, SDS 16 sections, transport regulations |
+| **Audit Checklists** | `AuditChecklists.ts` | ISO 9001, FDA inspection, Layered Process Audits |
+| **Case Studies** | `CaseStudies.ts` | 6 detailed DMAIC projects with ROI metrics |
+| **ESG Sustainability** | `ESGSustainability.ts` | Carbon footprint, CSRD, circular economy frameworks |
+| **Calculators** | `Calculators.ts` | Interactive Cpk, Sample Size, Gage R&R, Sigma/DPMO, COPQ, ANOVA, Regression |
+| **Quality Software** | `QualitySoftwareSystems.ts` | Sage 100, IQMS/DELMIAWorks ERP/QMS features and comparisons |
+| **Document Generator** | `DocumentGenerator.ts` | Excel (.xlsx) and Word (.doc) export with dynamic xlsx loading |
+
 ### Feature Technical Standards
 - **State Management**: React Context + hooks
 - **Persistence**: IndexedDB via `src/utils/db.ts`
 - **Styling**: CSS Modules (per-feature `.module.css`)
 - **Testing**: Vitest with React Testing Library
 - **Exports**: Centralized via `src/features/index.ts`
+- **Knowledge Base**: TypeScript data files with keyword search
+- **Document Generation**: XLSX library for Excel, HTML for Word
 
 ## Troubleshooting
 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getUserProfile } from '../../../utils/db';
 import { UserProfile } from '../../../types';
 import './Navbar.css';
@@ -62,14 +63,14 @@ export function Navbar({ onMenuToggle, isSidebarOpen }: NavbarProps) {
                     {theme === 'dark' ? '☀️' : '🌙'}
                 </button>
 
-                <div className="navbar-user">
+                <Link to="/login" className="navbar-user">
                     <div className="navbar-avatar">
                         {user ? getInitials(user.name) : '?'}
                     </div>
                     <span className="navbar-user-name">
                         {user?.name || 'Guest'}
                     </span>
-                </div>
+                </Link>
             </div>
         </nav>
     );
